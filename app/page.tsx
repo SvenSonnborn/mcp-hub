@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,7 +29,9 @@ function ServerCard({ server }: { server: Server }) {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-lg">{server.name}</CardTitle>
+            <Link href={`/servers/${server.id}`} className="hover:underline">
+              <CardTitle className="text-lg">{server.name}</CardTitle>
+            </Link>
             <CardDescription className="text-sm text-slate-500">
               by{' '}
               <a
@@ -60,11 +63,11 @@ function ServerCard({ server }: { server: Server }) {
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="flex-1" asChild>
             <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">
-              View on GitHub
+              GitHub
             </a>
           </Button>
-          <Button size="sm" className="flex-1">
-            Get
+          <Button size="sm" className="flex-1" asChild>
+            <Link href={`/servers/${server.id}`}>View Details</Link>
           </Button>
         </div>
       </CardContent>
