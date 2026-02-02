@@ -48,7 +48,9 @@ export default function Home() {
       </section>
 
       {/* Search & Filter - Client Component */}
-      <Suspense fallback={<div className="container mx-auto px-4 py-20 text-center">Loading...</div>}>
+      <Suspense
+        fallback={<div className="container mx-auto px-4 py-20 text-center">Loading...</div>}
+      >
         <NuqsAdapter>
           <ServerGrid initialServers={servers} allTags={tags} />
         </NuqsAdapter>
