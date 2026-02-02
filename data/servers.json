@@ -1,0 +1,148 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-20T12:00:00Z",
+  "servers": [
+    {
+      "id": "filesystem",
+      "name": "Filesystem MCP",
+      "description": "Read and write files, search directories, and manage file system operations with comprehensive path handling and security controls.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "filesystem"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
+      "npmPackage": "@modelcontextprotocol/server-filesystem",
+      "downloads": "50k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "read_file", "description": "Read contents of a file" },
+        { "name": "write_file", "description": "Write content to a file" },
+        { "name": "list_directory", "description": "List contents of a directory" },
+        { "name": "search_files", "description": "Search for files matching a pattern" }
+      ]
+    },
+    {
+      "id": "github",
+      "name": "GitHub MCP",
+      "description": "Repository management, file operations, issues, pull requests, and full GitHub API integration for seamless development workflows.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "github", "api"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
+      "npmPackage": "@modelcontextprotocol/server-github",
+      "downloads": "45k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "create_repository", "description": "Create a new GitHub repository" },
+        { "name": "create_issue", "description": "Create a new issue" },
+        { "name": "create_pull_request", "description": "Create a pull request" },
+        { "name": "search_code", "description": "Search code across repositories" }
+      ]
+    },
+    {
+      "id": "postgres",
+      "name": "PostgreSQL MCP",
+      "description": "Read-only database access with schema inspection, query execution, and comprehensive PostgreSQL integration capabilities.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "database", "postgres"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres",
+      "npmPackage": "@modelcontextprotocol/server-postgres",
+      "downloads": "30k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "query", "description": "Execute a read-only SQL query" },
+        { "name": "get_schema", "description": "Get database schema information" },
+        { "name": "list_tables", "description": "List all tables in the database" }
+      ]
+    },
+    {
+      "id": "brave-search",
+      "name": "Brave Search MCP",
+      "description": "Web search capabilities using Brave's Search API with privacy-focused results and comprehensive search functionalities.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "search", "web"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
+      "npmPackage": "@modelcontextprotocol/server-brave-search",
+      "downloads": "25k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "web_search", "description": "Perform a web search" },
+        { "name": "local_search", "description": "Search for local businesses" }
+      ]
+    },
+    {
+      "id": "puppeteer",
+      "name": "Puppeteer MCP",
+      "description": "Browser automation and web scraping with Puppeteer for taking screenshots, PDF generation, and page interaction.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "browser", "automation"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer",
+      "npmPackage": "@modelcontextprotocol/server-puppeteer",
+      "downloads": "20k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "navigate", "description": "Navigate to a URL" },
+        { "name": "screenshot", "description": "Take a screenshot of the page" },
+        { "name": "click", "description": "Click an element on the page" },
+        { "name": "evaluate", "description": "Execute JavaScript in the browser" }
+      ]
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite MCP",
+      "description": "SQLite database operations with built-in analysis features, query execution, and database management capabilities.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "database", "sqlite"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite",
+      "npmPackage": "@modelcontextprotocol/server-sqlite",
+      "downloads": "18k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "query", "description": "Execute a SQL query" },
+        { "name": "analyze", "description": "Analyze query performance" },
+        { "name": "get_schema", "description": "Get database schema" }
+      ]
+    },
+    {
+      "id": "fetch",
+      "name": "Fetch MCP",
+      "description": "Make HTTP requests to any API with configurable headers, methods, and response handling for universal API integration.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "api", "web"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch",
+      "npmPackage": "@modelcontextprotocol/server-fetch",
+      "downloads": "15k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [{ "name": "fetch", "description": "Make an HTTP request" }]
+    },
+    {
+      "id": "git",
+      "name": "Git MCP",
+      "description": "Git repository operations including reading commits, branches, and working with diffs for version control integration.",
+      "author": "anthropic",
+      "authorUrl": "https://anthropic.com",
+      "tags": ["official", "tools"],
+      "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/git",
+      "npmPackage": "@modelcontextprotocol/server-git",
+      "downloads": "12k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "git_log", "description": "Get commit history" },
+        { "name": "git_status", "description": "Check repository status" },
+        { "name": "git_diff", "description": "Show differences between commits" }
+      ]
+    }
+  ]
+}
