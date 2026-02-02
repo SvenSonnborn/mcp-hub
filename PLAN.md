@@ -1,8 +1,9 @@
 # MCP Hub - Product Specification
 
 ## Vision
-Das "App Store & Control Center" für Model Context Protocol (MCP) Server. 
-MCP Hub macht die Entdeckung, Installation und Verwaltung von MCP-Servern 
+
+Das "App Store & Control Center" für Model Context Protocol (MCP) Server.
+MCP Hub macht die Entdeckung, Installation und Verwaltung von MCP-Servern
 so einfach wie npm packages oder Docker containers.
 
 ## Core Value Propositions
@@ -14,6 +15,7 @@ so einfach wie npm packages oder Docker containers.
 5. **Config Sync**: Ein Config-File für alle AI Tools (Claude, Cursor, etc.)
 
 ## Target Audience
+
 - AI-Native Entwickler (nutzen Claude/Cursor täglich)
 - DevOps Engineers (managen AI-Infrastructure)
 - AI Tool Builders (erstellen eigene MCP-Server)
@@ -21,6 +23,7 @@ so einfach wie npm packages oder Docker containers.
 ## Tech Stack
 
 ### Core
+
 - **Framework**: Next.js 16 (App Router)
 - **Runtime**: Bun
 - **Language**: TypeScript 5.5+
@@ -31,6 +34,7 @@ so einfach wie npm packages oder Docker containers.
 - **ORM**: Prisma
 
 ### Design System
+
 - **Primary**: Slate/Zinc Farbpalette (Developer-freundlich)
 - **Accent**: Violet/Purple (AI/Tech Vibe)
 - **Typography**: Inter (Body), JetBrains Mono (Code)
@@ -38,6 +42,7 @@ so einfach wie npm packages oder Docker containers.
 - **Spacing**: 4px Base Grid (4, 8, 12, 16, 24, 32, 48)
 
 ### Icons
+
 - **Lucide React** (konsistent, modern)
 
 ## Architecture
@@ -63,7 +68,7 @@ model MCPServer {
   rating      Float    @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relations
   installations MCPInstallation[]
 }
@@ -73,18 +78,18 @@ model MCPInstallation {
   id          String   @id @default(cuid())
   serverId    String
   server      MCPServer @relation(fields: [serverId], references: [id])
-  
+
   // Local config
   status      ServerStatus @default(PENDING)
   config      Json?        // User's config values
   port        Int?         // If server runs on port
   pid         Int?         // Process ID
-  
+
   // Health tracking
   lastPing    DateTime?
   isHealthy   Boolean   @default(false)
   errorLog    String?
-  
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -114,14 +119,17 @@ enum ServerStatus {
 ## Feature Specifications
 
 ### 1. Registry Browser (/registry)
+
 **Purpose**: Entdecke und suche MCP-Server
 
 **Layout**:
+
 - Header mit Search + Filter
 - Sidebar: Kategorien (Filesystem, Database, API, etc.)
 - Main: Grid/List von Server Cards
 
 **Server Card**:
+
 - Icon (Category-based)
 - Name + Publisher Badge (verified/official)
 - Short Description (2 lines max)
@@ -131,42 +139,51 @@ enum ServerStatus {
 - Click → Detail View
 
 **Interactions**:
+
 - Search: Instant mit Debounce (300ms)
 - Filter: Multi-select Categories
 - Sort: Downloads | Rating | Recently Added
 
 ### 2. Server Detail View (/registry/[id])
+
 **Purpose**: Detaillierte Info + Installation
 
 **Layout**:
+
 - Hero: Icon + Name + Publisher + Action Buttons
 - Tabs: Overview | Config | Versions | Docs
 - Sidebar: Quick Stats (Downloads, Version, License)
 
 **Overview Tab**:
+
 - Full Description (Markdown)
 - Screenshots/GIFs
 - Key Features List
 - GitHub Link
 
 **Config Tab**:
+
 - JSON Schema visualizer
 - Form fields based on schema
 - Validation live
 
 **Actions**:
+
 - "Install" → Install Modal
 - "Copy Config" → JSON für manuelle Config
 
 ### 3. Dashboard (/)
+
 **Purpose**: Management aller installierten Server
 
 **Layout**:
+
 - Stats Row: Total | Running | Stopped | Errors
 - Grid: Installed Server Cards
 - Empty State: CTA zu Registry
 
 **Installed Server Card**:
+
 - Status Indicator (Green/Yellow/Red dot)
 - Server Name + Version
 - Last Ping time
@@ -174,28 +191,34 @@ enum ServerStatus {
 - Expand: Live Logs (last 50 lines)
 
 **Interactions**:
+
 - Real-time Status Updates (SSE/WebSocket)
 - Bulk Actions: Start All | Stop All
 - Drag & Drop to reorder
 
 ### 4. Config Manager (/config)
+
 **Purpose**: Unified MCP Config für alle Tools
 
 **Layout**:
+
 - Tool Selector: Claude | Cursor | Windsurf | Generic
 - Generated Config Preview (JSON)
 - Copy Button
 - Export to File
 
 **Features**:
+
 - Auto-generate config aus installierten Servern
 - Per-Tool presets (verschiedene Formate)
 - Validation gegen MCP Spec
 
 ### 5. Health Monitor (/monitor)
+
 **Purpose**: Deep-dive in Server Performance
 
 **Layout**:
+
 - Server Selector Dropdown
 - Charts: Response Time | Request Rate | Error Rate
 - Logs: Searchable, Filterable (Level, Time)
@@ -204,6 +227,7 @@ enum ServerStatus {
 ## UI/UX Design Principles
 
 ### Dark Mode First
+
 - Primary Background: `slate-950`
 - Card Background: `slate-900`
 - Border: `slate-800`
@@ -212,6 +236,7 @@ enum ServerStatus {
 - Accent: `violet-500` (primary), `violet-400` (hover)
 
 ### Status Colors
+
 - Running: `emerald-500`
 - Stopped: `slate-500`
 - Error: `rose-500`
@@ -219,12 +244,14 @@ enum ServerStatus {
 - Loading: `blue-500`
 
 ### Animations
+
 - Page Transitions: 200ms ease-out
 - Card Hover: translateY(-2px) + shadow increase
 - Status Pulse: Subtle animation for "Running"
 - Loading: Skeleton screens, nicht Spinner
 
 ### Responsive Breakpoints
+
 - Mobile: < 640px (Single Column)
 - Tablet: 640px - 1024px (2 Columns)
 - Desktop: > 1024px (3-4 Columns)
@@ -290,6 +317,7 @@ public/
 ## API Endpoints
 
 ### Registry
+
 ```
 GET    /api/mcp-servers              # List all (with filters)
 GET    /api/mcp-servers/[id]         # Single server details
@@ -297,6 +325,7 @@ POST   /api/mcp-servers              # Add new (admin)
 ```
 
 ### Installations
+
 ```
 GET    /api/installations            # List local installations
 POST   /api/installations            # Install server
@@ -305,11 +334,13 @@ DELETE /api/installations/[id]       # Uninstall
 ```
 
 ### Config
+
 ```
 GET    /api/config/[tool]            # Generate config for tool
 ```
 
 ### Health
+
 ```
 GET    /api/health/[id]              # Server health status
 GET    /api/health/[id]/logs         # Server logs
@@ -318,6 +349,7 @@ GET    /api/health/[id]/logs         # Server logs
 ## Phase 1 Implementation Plan
 
 ### Milestone 1: Foundation (Day 1)
+
 1. Next.js 16 + Tailwind v4 setup
 2. Prisma schema + SQLite setup
 3. Base layout (Sidebar + Header)
@@ -325,6 +357,7 @@ GET    /api/health/[id]/logs         # Server logs
 5. Shadcn/ui component library setup
 
 ### Milestone 2: Registry Browser (Day 1-2)
+
 1. Database seed with sample MCP servers
 2. Registry page with Grid/List view
 3. Search + Filter functionality
@@ -332,6 +365,7 @@ GET    /api/health/[id]/logs         # Server logs
 5. Server Detail page
 
 ### Milestone 3: Dashboard (Day 2-3)
+
 1. Installation system
 2. Dashboard with installed servers
 3. Start/Stop functionality
@@ -339,11 +373,13 @@ GET    /api/health/[id]/logs         # Server logs
 5. Basic logs viewer
 
 ### Milestone 4: Config Manager (Day 3)
+
 1. Config generator
 2. Tool presets (Claude, Cursor)
 3. Copy/Export functionality
 
 ### Milestone 5: Polish (Day 4)
+
 1. Health monitoring page
 2. Animations + Micro-interactions
 3. Error handling

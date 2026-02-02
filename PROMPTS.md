@@ -41,15 +41,15 @@ Requirements:
 1. Install Prisma as dev dependency and @prisma/client
 2. Initialize Prisma with: npx prisma init
 3. Create the schema in prisma/schema.prisma:
-   - MCPServer model with: id, name, description, publisher, 
+   - MCPServer model with: id, name, description, publisher,
      githubUrl, installUrl, version, category (enum), tags (String[]),
-     configSchema (Json), isOfficial, isVerified, downloadCount, 
+     configSchema (Json), isOfficial, isVerified, downloadCount,
      rating, createdAt, updatedAt
    - MCPInstallation model with: id, serverId (relation),
      status (enum: PENDING, INSTALLING, RUNNING, STOPPED, ERROR, UPDATING),
      config (Json), port, pid, lastPing, isHealthy, errorLog,
      createdAt, updatedAt
-   - Enums: Category (FILESYSTEM, DATABASE, API, VERSION_CONTROL, 
+   - Enums: Category (FILESYSTEM, DATABASE, API, VERSION_CONTROL,
      COMMUNICATION, SEARCH, AI_SERVICE, DEV_TOOL, OTHER)
 4. Create lib/prisma.ts with singleton PrismaClient
 5. Run migration: npx prisma migrate dev --name init
@@ -76,7 +76,7 @@ All models must use @id @default(cuid()) for IDs.
 Create the Registry Browser page at app/(dashboard)/registry/page.tsx
 
 Requirements:
-1. Layout: 
+1. Layout:
    - Header with title "MCP Registry" + search input
    - Sidebar left with category filters (Checkbox list)
    - Main area: Grid of ServerCards (3 columns on desktop)
@@ -86,20 +86,20 @@ Requirements:
      - Input with search icon
      - Debounced search (300ms)
      - Clear button
-   
+
    - components/registry/CategoryFilter.tsx
      - List of all Category enum values
      - Checkboxes for multi-select
      - "Clear all" link
-   
+
    - components/registry/ServerCard.tsx
-     - Card with: icon (based on category), name, 
+     - Card with: icon (based on category), name,
        publisher (with verified badge if isVerified),
        description (2 lines, truncate), tags (max 3 badges),
        download count, rating stars
      - Hover effect: translateY(-2px), shadow increase
      - Click navigates to detail page
-   
+
    - components/registry/ServerGrid.tsx
      - Responsive grid (1 col mobile, 2 col tablet, 3 col desktop)
      - Empty state: "No servers found" with icon
@@ -177,7 +177,7 @@ Requirements:
      * 4 stat cards with icons
      * Large numbers, small labels
      * Error count shows red badge if > 0
-   
+
    - components/dashboard/InstalledCard.tsx
      * Status indicator: colored dot (pulse animation if running)
      * Server name, version
@@ -185,7 +185,7 @@ Requirements:
      * Action buttons: Play (start), Square (stop), RotateCw (restart),
        Settings (gear), FileText (logs)
      * Expandable section for logs (last 50 lines)
-   
+
    - components/dashboard/StatusBadge.tsx
      * Running: emerald-500 dot + "Running" text
      * Stopped: slate-500 dot + "Stopped"
@@ -215,7 +215,7 @@ Create the Config Manager at app/(dashboard)/config/page.tsx
 
 Requirements:
 1. Layout:
-   - Two columns: 
+   - Two columns:
      * Left: Tool selector (Claude, Cursor, Windsurf, Generic)
      * Right: Generated config preview
 
@@ -224,7 +224,7 @@ Requirements:
      * Radio cards for each tool
      * Icons for each tool
      * Selected tool highlighted with violet border
-   
+
    - components/config/ConfigPreview.tsx
      * Syntax-highlighted JSON (use prism-react-renderer or similar)
      * Line numbers
@@ -293,7 +293,7 @@ Requirements:
    - "Something went wrong" with retry button
 
 7. Install missing shadcn components:
-   - button, card, input, badge, tabs, checkbox, 
+   - button, card, input, badge, tabs, checkbox,
      dropdown-menu, avatar, skeleton, tooltip, separator
 
 8. Final verification:
@@ -312,7 +312,7 @@ Requirements:
    - Server selector dropdown (all installed servers)
    - Stats cards: Uptime, Avg Response Time, Requests/min, Error Rate
    - Simple chart placeholder (use recharts for mock data)
-   - Logs section: 
+   - Logs section:
      * Filter by level (INFO, WARN, ERROR)
      * Search input
      * Virtualized list for performance (if many logs)
@@ -362,6 +362,7 @@ Requirements:
 ## Codex Execution Notes
 
 For each prompt:
+
 - Use --sandbox workspace-write for file operations
 - Use --model gpt-5.1-codex-mini for cost efficiency
 - Verify each step completes before next
