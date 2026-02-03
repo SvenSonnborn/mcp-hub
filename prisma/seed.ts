@@ -4,7 +4,8 @@ import { Category } from '@prisma/client'
 const sampleServers = [
   {
     name: 'filesystem',
-    description: 'Secure file system operations with configurable access controls. Read, write, and manage files with fine-grained permissions.',
+    description:
+      'Secure file system operations with configurable access controls. Read, write, and manage files with fine-grained permissions.',
     publisher: 'Anthropic',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem',
     installUrl: 'npm:@modelcontextprotocol/server-filesystem',
@@ -29,7 +30,8 @@ const sampleServers = [
   },
   {
     name: 'github',
-    description: 'GitHub integration for repository management, issues, pull requests, and code search. Full API access with secure authentication.',
+    description:
+      'GitHub integration for repository management, issues, pull requests, and code search. Full API access with secure authentication.',
     publisher: 'Anthropic',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/github',
     installUrl: 'npm:@modelcontextprotocol/server-github',
@@ -53,7 +55,8 @@ const sampleServers = [
   },
   {
     name: 'postgres',
-    description: 'PostgreSQL database integration with read-only and read-write modes. Execute queries with parameterized inputs for security.',
+    description:
+      'PostgreSQL database integration with read-only and read-write modes. Execute queries with parameterized inputs for security.',
     publisher: 'Community',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/postgres',
     installUrl: 'npm:@modelcontextprotocol/server-postgres',
@@ -77,7 +80,8 @@ const sampleServers = [
   },
   {
     name: 'slack',
-    description: 'Slack workspace integration for sending messages, managing channels, and accessing conversation history.',
+    description:
+      'Slack workspace integration for sending messages, managing channels, and accessing conversation history.',
     publisher: 'Community',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/slack',
     installUrl: 'npm:@modelcontextprotocol/server-slack',
@@ -101,7 +105,8 @@ const sampleServers = [
   },
   {
     name: 'fetch',
-    description: 'HTTP client for making web requests with configurable timeouts, retries, and response parsing.',
+    description:
+      'HTTP client for making web requests with configurable timeouts, retries, and response parsing.',
     publisher: 'Anthropic',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/fetch',
     installUrl: 'npm:@modelcontextprotocol/server-fetch',
@@ -125,7 +130,8 @@ const sampleServers = [
   },
   {
     name: 'brave-search',
-    description: 'Brave Search API integration for web search with privacy-focused results. Includes image and news search.',
+    description:
+      'Brave Search API integration for web search with privacy-focused results. Includes image and news search.',
     publisher: 'Community',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search',
     installUrl: 'npm:@modelcontextprotocol/server-brave-search',
@@ -149,7 +155,8 @@ const sampleServers = [
   },
   {
     name: 'sqlite',
-    description: 'SQLite database operations with support for complex queries, transactions, and schema management.',
+    description:
+      'SQLite database operations with support for complex queries, transactions, and schema management.',
     publisher: 'Community',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite',
     installUrl: 'npm:@modelcontextprotocol/server-sqlite',
@@ -173,7 +180,8 @@ const sampleServers = [
   },
   {
     name: 'git',
-    description: 'Git operations for repository management, commit history, branch operations, and diffs.',
+    description:
+      'Git operations for repository management, commit history, branch operations, and diffs.',
     publisher: 'Community',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/git',
     installUrl: 'npm:@modelcontextprotocol/server-git',
@@ -197,7 +205,8 @@ const sampleServers = [
   },
   {
     name: 'puppeteer',
-    description: 'Browser automation with Puppeteer for web scraping, screenshots, and PDF generation.',
+    description:
+      'Browser automation with Puppeteer for web scraping, screenshots, and PDF generation.',
     publisher: 'Community',
     githubUrl: 'https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer',
     installUrl: 'npm:@modelcontextprotocol/server-puppeteer',
