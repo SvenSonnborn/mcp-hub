@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useMotionValue, useMotionValueEvent, useSpring } from 'framer-motion'
 import {
   ArrowRight,
@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import { Space_Grotesk } from 'next/font/google'
 import Link from 'next/link'
+import { useAuth } from '@/components/providers/supabase-provider'
+import { useRouter } from 'next/navigation'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], display: 'swap' })
 
@@ -110,6 +112,8 @@ function Counter({ value }: { value: number }) {
 }
 
 export default function Home() {
+  const router = useRouter()
+  const { user, isLoading: authLoading } = useAuth()
   const [stats, setStats] = useState<Stats>({
     totalServers: 0,
     totalInstallations: 0,
@@ -135,6 +139,27 @@ export default function Home() {
 
   const showDemoServers = !loading && servers.length === 0
   const visibleServers = showDemoServers ? fallbackServers : servers
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+  const displayName = useMemo(() => {
+    if (!user?.email) return 'User'
+    return user.email.split('@')[0]
+  }, [user])
+  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined
+
+  useEffect(() => {
+    if (!menuOpen) return
+
+    const handleClick = (event: MouseEvent) => {
+      if (!menuRef.current || menuRef.current.contains(event.target as Node)) {
+        return
+      }
+      setMenuOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [menuOpen])
 
   return (
     <motion.main
@@ -185,12 +210,74 @@ export default function Home() {
               GitHub
             </a>
           </nav>
-          <Link
-            href="/dashboard"
-            className={`cursor-pointer rounded-full bg-cyan-400 px-5 py-2 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
-          >
-            Launch Console
-          </Link>
+          <div className="relative flex items-center gap-3">
+            {authLoading ? (
+              <div className="h-10 w-28 animate-pulse rounded-full border border-white/10 bg-white/10" />
+            ) : user ? (
+              <div ref={menuRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen((prev) => !prev)}
+                  className={`flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 transition-all duration-200 hover:border-cyan-300/40 ${glowRing}`}
+                >
+                  <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-cyan-500/20 text-xs font-semibold text-cyan-100">
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt={displayName} className="h-full w-full" />
+                    ) : (
+                      displayName.slice(0, 2).toUpperCase()
+                    )}
+                  </span>
+                  <span className="hidden text-left text-xs md:block">
+                    <span className="block text-slate-300">Signed in as</span>
+                    <span className="block text-slate-100">{displayName}</span>
+                  </span>
+                </button>
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-white/10 bg-slate-950/95 p-2 text-sm text-slate-200 shadow-[0_20px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+                    <Link
+                      href="/dashboard"
+                      className={`block rounded-xl px-3 py-2 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className={`block rounded-xl px-3 py-2 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await fetch('/logout', { method: 'POST' })
+                        router.push('/')
+                        router.refresh()
+                      }}
+                      className={`mt-1 w-full rounded-xl px-3 py-2 text-left transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className={`hidden cursor-pointer rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 md:inline-flex ${glowRing}`}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className={`cursor-pointer rounded-full bg-cyan-400 px-5 py-2 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
+          </div>
         </motion.header>
 
         <motion.section
