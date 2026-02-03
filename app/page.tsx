@@ -272,10 +272,13 @@ export default function Home() {
                 title: 'Management',
                 body: 'Unified dashboard to monitor health, view logs, and manage all your MCP servers in one place.',
               },
-            ].map((feature) => (
+            ].map((feature, index) => (
               <motion.div
                 key={feature.title}
-                variants={item}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
                 className={`cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl ${hoverLift} ${glowRing}`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-200">
@@ -317,10 +320,13 @@ export default function Home() {
                     className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/5"
                   />
                 ))
-              : visibleServers.map((server) => (
+              : visibleServers.map((server, index) => (
                   <motion.div
                     key={server.id}
-                    variants={item}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
                     className={`cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-white/10 ${glowRing}`}
                   >
                     <div className="flex items-start justify-between">
