@@ -19,6 +19,12 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Handle case where supabase client is null during SSR/build
+    if (!supabase) {
+      setIsLoading(false)
+      return
+    }
+
     let isMounted = true
 
     supabase.auth.getSession().then(({ data }) => {
