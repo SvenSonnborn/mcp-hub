@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // "file:./dev.db"
+}
+
+model MCPServer {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  description   String
+  publisher     String
+  githubUrl     String
+  installUrl    String
+  version       String
+  category      Category
+  tags          String
+  configSchema  String?  @default("{}")
+  isOfficial    Boolean  @default(false)
+  isVerified    Boolean  @default(false)
+  downloadCount Int      @default(0)
+  rating        Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  installations MCPInstallation[]
+}
+
+model MCPInstallation {
+  id        String   @id @default(cuid())
+  serverId  String
+  server    MCPServer @relation(fields: [serverId], references: [id])
+
+  // Local config
+  status   ServerStatus @default(PENDING)
+  config   String?      @default("{}")
+  port     Int?
+  pid      Int?
+
+  // Health tracking
+  lastPing  DateTime?
+  isHealthy Boolean   @default(false)
+  errorLog  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Category {
+  FILESYSTEM
+  DATABASE
+  API
+  VERSION_CONTROL
+  COMMUNICATION
+  SEARCH
+  AI_SERVICE
+  DEV_TOOL
+  OTHER
+}
+
+enum ServerStatus {
+  PENDING
+  INSTALLING
+  RUNNING
+  STOPPED
+  ERROR
+  UPDATING
+}
