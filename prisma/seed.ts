@@ -11,8 +11,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-filesystem',
     version: '1.0.0',
     category: Category.FILESYSTEM,
-    tags: 'official,filesystem,tools',
-    configSchema: JSON.stringify({
+    tags: ['official', 'filesystem', 'tools'],
+    configSchema: {
       type: 'object',
       properties: {
         paths: {
@@ -22,7 +22,7 @@ const sampleServers = [
         },
       },
       required: ['paths'],
-    }),
+    },
     isOfficial: true,
     isVerified: true,
     downloadCount: 125000,
@@ -37,8 +37,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-github',
     version: '1.0.0',
     category: Category.VERSION_CONTROL,
-    tags: 'official,github,api',
-    configSchema: JSON.stringify({
+    tags: ['official', 'github', 'api'],
+    configSchema: {
       type: 'object',
       properties: {
         token: {
@@ -47,7 +47,7 @@ const sampleServers = [
         },
       },
       required: ['token'],
-    }),
+    },
     isOfficial: true,
     isVerified: true,
     downloadCount: 89000,
@@ -62,8 +62,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-postgres',
     version: '1.0.0',
     category: Category.DATABASE,
-    tags: 'database,postgres,sql',
-    configSchema: JSON.stringify({
+    tags: ['database', 'postgres', 'sql'],
+    configSchema: {
       type: 'object',
       properties: {
         connectionString: {
@@ -72,7 +72,7 @@ const sampleServers = [
         },
       },
       required: ['connectionString'],
-    }),
+    },
     isOfficial: false,
     isVerified: true,
     downloadCount: 45000,
@@ -87,8 +87,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-slack',
     version: '1.0.0',
     category: Category.COMMUNICATION,
-    tags: 'slack,communication,api',
-    configSchema: JSON.stringify({
+    tags: ['slack', 'communication', 'api'],
+    configSchema: {
       type: 'object',
       properties: {
         token: {
@@ -97,7 +97,7 @@ const sampleServers = [
         },
       },
       required: ['token'],
-    }),
+    },
     isOfficial: false,
     isVerified: true,
     downloadCount: 32000,
@@ -112,8 +112,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-fetch',
     version: '1.0.0',
     category: Category.API,
-    tags: 'official,api,http',
-    configSchema: JSON.stringify({
+    tags: ['official', 'api', 'http'],
+    configSchema: {
       type: 'object',
       properties: {
         maxResponseSize: {
@@ -122,7 +122,7 @@ const sampleServers = [
           description: 'Maximum response size in bytes',
         },
       },
-    }),
+    },
     isOfficial: true,
     isVerified: true,
     downloadCount: 78000,
@@ -137,8 +137,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-brave-search',
     version: '1.0.0',
     category: Category.SEARCH,
-    tags: 'search,brave,api',
-    configSchema: JSON.stringify({
+    tags: ['search', 'brave', 'api'],
+    configSchema: {
       type: 'object',
       properties: {
         apiKey: {
@@ -147,7 +147,7 @@ const sampleServers = [
         },
       },
       required: ['apiKey'],
-    }),
+    },
     isOfficial: false,
     isVerified: true,
     downloadCount: 28000,
@@ -162,8 +162,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-sqlite',
     version: '1.0.0',
     category: Category.DATABASE,
-    tags: 'database,sqlite,sql',
-    configSchema: JSON.stringify({
+    tags: ['database', 'sqlite', 'sql'],
+    configSchema: {
       type: 'object',
       properties: {
         dbPath: {
@@ -172,7 +172,7 @@ const sampleServers = [
         },
       },
       required: ['dbPath'],
-    }),
+    },
     isOfficial: false,
     isVerified: true,
     downloadCount: 35000,
@@ -187,8 +187,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-git',
     version: '1.0.0',
     category: Category.VERSION_CONTROL,
-    tags: 'git,version-control,dev-tool',
-    configSchema: JSON.stringify({
+    tags: ['git', 'version-control', 'dev-tool'],
+    configSchema: {
       type: 'object',
       properties: {
         repositoryPath: {
@@ -197,7 +197,7 @@ const sampleServers = [
         },
       },
       required: ['repositoryPath'],
-    }),
+    },
     isOfficial: false,
     isVerified: true,
     downloadCount: 41000,
@@ -212,8 +212,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-puppeteer',
     version: '1.0.0',
     category: Category.DEV_TOOL,
-    tags: 'browser,automation,scraping',
-    configSchema: JSON.stringify({
+    tags: ['browser', 'automation', 'scraping'],
+    configSchema: {
       type: 'object',
       properties: {
         headless: {
@@ -222,7 +222,7 @@ const sampleServers = [
           description: 'Run browser in headless mode',
         },
       },
-    }),
+    },
     isOfficial: false,
     isVerified: true,
     downloadCount: 22000,
@@ -236,8 +236,8 @@ const sampleServers = [
     installUrl: 'npm:@modelcontextprotocol/server-playwright',
     version: '1.0.0',
     category: Category.DEV_TOOL,
-    tags: 'browser,automation,testing',
-    configSchema: JSON.stringify({
+    tags: ['browser', 'automation', 'testing'],
+    configSchema: {
       type: 'object',
       properties: {
         browser: {
@@ -247,7 +247,7 @@ const sampleServers = [
           description: 'Browser to use',
         },
       },
-    }),
+    },
     isOfficial: false,
     isVerified: true,
     downloadCount: 19000,
