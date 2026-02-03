@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Bot, MousePointer2, Wind, Boxes, Info } from 'lucide-react'
 import { ToolSelector, type ToolOption } from '@/components/config/ToolSelector'
 import { ConfigPreview } from '@/components/config/ConfigPreview'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 type ConfigResponse = {
@@ -118,12 +120,18 @@ export function ConfigManagerClient() {
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-400">
           <div className="flex items-center gap-2 text-slate-200">
             <p className="font-semibold">Config location</p>
-            <span className="group relative inline-flex items-center">
-              <Info className="h-3.5 w-3.5 text-slate-500" />
-              <span className="pointer-events-none absolute top-6 left-1/2 z-10 w-56 -translate-x-1/2 rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 opacity-0 shadow-xl transition group-hover:opacity-100">
-                Paste the generated JSON into the tool-specific config file shown here.
-              </span>
-            </span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex items-center">
+                    <Info className="h-3.5 w-3.5 text-slate-500" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Paste the generated JSON into the tool-specific config file shown here.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <p className="mt-2 text-slate-400">{selectedOption?.location ?? 'mcp.json'}</p>
           <p className="mt-3 text-slate-500">
@@ -152,7 +160,12 @@ export function ConfigManagerClient() {
             {isLoading ? 'Updating...' : error ? 'Needs attention' : 'Ready to copy'}
           </div>
         </div>
-        {error ? (
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-80 rounded-2xl" />
+          </div>
+        ) : error ? (
           <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-6 text-sm text-rose-100">
             {error}
           </div>

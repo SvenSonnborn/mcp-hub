@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { InstallActions } from '@/components/registry/InstallActions'
 import { getAllServers, getServerById } from '@/lib/data'
 import type { Server, ServerTag } from '@/lib/schemas'
 
@@ -115,7 +116,8 @@ export default function ServerPage({ params }: { params: { id: string } }) {
                     </code>
                   </div>
                 )}
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
+                  {server.npmPackage ? <InstallActions npmPackage={server.npmPackage} /> : null}
                   <Button asChild className="flex-1">
                     <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">
                       View on GitHub

@@ -3,9 +3,11 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { InstalledCard, type Installation } from './InstalledCard'
 import { StatsRow } from './StatsRow'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
 async function fetchInstallations(): Promise<Installation[]> {
   const response = await fetch('/api/installations')
@@ -34,20 +36,43 @@ function DashboardContent() {
   }, [installations])
 
   const updateStatus = async (id: string, action: 'start' | 'stop' | 'restart') => {
-    await fetch(`/api/installations/${id}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action }),
-    })
-    queryClient.invalidateQueries({ queryKey: ['installations'] })
+    try {
+      const response = await fetch(`/api/installations/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+      if (!response.ok) {
+        throw new Error('Status update failed')
+      }
+      const verb = action === 'restart' ? 'Restarted' : action === 'start' ? 'Started' : 'Stopped'
+      toast.success(`Server ${verb.toLowerCase()}`, {
+        description: `Action confirmed: ${verb}.`,
+      })
+    } catch (error) {
+      toast.error('Unable to update server status', {
+        description: error instanceof Error ? error.message : 'Please try again.',
+      })
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ['installations'] })
+    }
   }
 
   return (
     <div className="space-y-6">
       <StatsRow {...stats} />
       {isLoading ? (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-12 text-center text-slate-300">
-          Loading installations...
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} className="h-24 rounded-xl" />
+            ))}
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <Skeleton key={index} className="h-40 rounded-xl" />
+            ))}
+          </div>
         </div>
       ) : isError ? (
         <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-12 text-center text-rose-100">

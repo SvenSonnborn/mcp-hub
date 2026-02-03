@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { Highlight, themes } from 'prism-react-renderer'
 import { Check, CheckCircle2, Copy, Download, AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -23,9 +24,16 @@ export function ConfigPreview({
   const code = useMemo(() => JSON.stringify(config ?? {}, null, 2), [config])
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 1500)
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopied(true)
+      toast.success('Config copied to clipboard')
+      window.setTimeout(() => setCopied(false), 1500)
+    } catch (error) {
+      toast.error('Unable to copy config', {
+        description: error instanceof Error ? error.message : 'Check clipboard permissions.',
+      })
+    }
   }
 
   const handleDownload = () => {
