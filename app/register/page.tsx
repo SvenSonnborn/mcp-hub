@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Space_Grotesk } from 'next/font/google'
 import Link from 'next/link'
@@ -12,7 +12,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], display: 'swap' })
 
 const easing: [number, number, number, number] = [0.25, 0.1, 0.25, 1]
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') ?? '/dashboard'
@@ -28,6 +28,12 @@ export default function RegisterPage() {
     setError(null)
     setMessage(null)
     setLoading(true)
+
+    if (!supabase) {
+      setError('Authentication not available')
+      setLoading(false)
+      return
+    }
 
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
@@ -58,6 +64,12 @@ export default function RegisterPage() {
     setMessage(null)
     setLoading(true)
 
+    if (!supabase) {
+      setError('Authentication not available')
+      setLoading(false)
+      return
+    }
+
     const redirectUrl = `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -73,6 +85,86 @@ export default function RegisterPage() {
     }
   }
 
+  return (
+    <>
+      <button
+        type="button"
+        onClick={handleGithub}
+        disabled={loading}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/10"
+      >
+        <Github className="h-4 w-4" />
+        Continue with GitHub
+      </button>
+
+      <div className="my-6 flex items-center gap-3 text-xs text-slate-500">
+        <span className="h-px flex-1 bg-white/10" />
+        or
+        <span className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <form onSubmit={handleRegister} className="space-y-4">
+        <div>
+          <label className="text-xs text-slate-400">Email</label>
+          <div className="mt-2 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <Mail className="h-4 w-4 text-slate-500" />
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@company.com"
+              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+              required
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-slate-400">Password</label>
+          <div className="mt-2 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <Lock className="h-4 w-4 text-slate-500" />
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+              required
+            />
+          </div>
+        </div>
+
+        {error && (
+          <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-200">
+            {error}
+          </p>
+        )}
+
+        {message && (
+          <p className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-xs text-cyan-100">
+            {message}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300"
+        >
+          {loading ? 'Creating account...' : 'Create account'}
+        </button>
+      </form>
+
+      <p className="mt-6 text-center text-xs text-slate-400">
+        Already have an account?{' '}
+        <Link href="/login" className="font-semibold text-cyan-200 hover:text-cyan-100">
+          Log in
+        </Link>
+      </p>
+    </>
+  )
+}
+
+export default function RegisterPage() {
   return (
     <motion.main
       initial={{ opacity: 0, y: 10 }}
@@ -94,79 +186,9 @@ export default function RegisterPage() {
             <p className="text-sm text-slate-400">Start discovering and deploying MCP servers.</p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleGithub}
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-400/40 hover:bg-white/10"
-          >
-            <Github className="h-4 w-4" />
-            Continue with GitHub
-          </button>
-
-          <div className="my-6 flex items-center gap-3 text-xs text-slate-500">
-            <span className="h-px flex-1 bg-white/10" />
-            or
-            <span className="h-px flex-1 bg-white/10" />
-          </div>
-
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div>
-              <label className="text-xs text-slate-400">Email</label>
-              <div className="mt-2 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <Mail className="h-4 w-4 text-slate-500" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="you@company.com"
-                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs text-slate-400">Password</label>
-              <div className="mt-2 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <Lock className="h-4 w-4 text-slate-500" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
-                  required
-                />
-              </div>
-            </div>
-
-            {error && (
-              <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-200">
-                {error}
-              </p>
-            )}
-
-            {message && (
-              <p className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-xs text-cyan-100">
-                {message}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300"
-            >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </form>
-
-          <p className="mt-6 text-center text-xs text-slate-400">
-            Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-cyan-200 hover:text-cyan-100">
-              Log in
-            </Link>
-          </p>
+          <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-white/5" />}>
+            <RegisterForm />
+          </Suspense>
         </div>
       </div>
     </motion.main>
