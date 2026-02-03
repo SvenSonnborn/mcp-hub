@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Space_Grotesk } from 'next/font/google'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Github, Lock, Mail } from 'lucide-react'
+import { Github, Lock, Mail, ArrowLeft } from 'lucide-react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], display: 'swap' })
@@ -160,6 +160,14 @@ export default function LoginPage() {
           <div className="absolute right-[-10%] bottom-0 h-[360px] w-[360px] rounded-full bg-violet-500/20 blur-[140px]" />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/30 via-slate-950/60 to-slate-950" />
         </div>
+
+        <Link
+          href="/"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-slate-400 transition-colors hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
 
         <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-[0_25px_80px_rgba(15,23,42,0.45)] backdrop-blur-2xl">
           <div className="mb-6 space-y-2">

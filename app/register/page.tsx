@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Space_Grotesk } from 'next/font/google'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Github, Lock, Mail } from 'lucide-react'
+import { Github, Lock, Mail, ArrowLeft } from 'lucide-react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], display: 'swap' })
@@ -190,6 +190,14 @@ export default function RegisterPage() {
             <RegisterForm />
           </Suspense>
         </div>
+
+        <Link
+          href="/"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-slate-400 transition-colors hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
       </div>
     </motion.main>
   )
