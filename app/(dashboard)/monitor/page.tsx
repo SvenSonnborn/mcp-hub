@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { MonitorClient } from '@/components/monitor/MonitorClient'
 
 export default function MonitorPage() {
   return (
@@ -6,17 +6,10 @@ export default function MonitorPage() {
       <div className="space-y-2">
         <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">Monitor</p>
         <p className="text-sm text-slate-400">
-          Live health telemetry will appear here once your servers report metrics.
+          Real-time health telemetry across every installed MCP server.
         </p>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-24 rounded-xl" />
-        ))}
-      </div>
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-400">
-        Waiting for health monitor data. Check back after enabling the monitor in your MCP server.
-      </div>
+      <MonitorClient />
     </div>
   )
 }
