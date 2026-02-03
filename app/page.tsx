@@ -19,18 +19,50 @@ import Link from 'next/link'
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], display: 'swap' })
 
-const container = {
-  hidden: { opacity: 0, y: 24 },
+const easing: [number, number, number, number] = [0.25, 0.1, 0.25, 1]
+
+const pageSequence = {
+  hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    y: 0,
-    transition: { staggerChildren: 0.1, duration: 0.6, ease: 'easeOut' },
+    transition: { staggerChildren: 0.05 },
   },
 }
 
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+const section = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: easing } },
+}
+
+const heroGroup = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.1 },
+  },
+}
+
+const heroItem = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easing } },
+}
+
+const cardsGroup = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.05 },
+  },
+}
+
+const cardItem = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: easing } },
+}
+
+const statsGroup = {
+  hidden: {},
+  show: {
+    transition: { delayChildren: 0.2, staggerChildren: 0.05 },
+  },
 }
 
 const glowRing =
@@ -105,7 +137,12 @@ export default function Home() {
   const visibleServers = showDemoServers ? fallbackServers : servers
 
   return (
-    <main className={`${spaceGrotesk.className} min-h-screen bg-slate-950 text-slate-100`}>
+    <motion.main
+      variants={pageSequence}
+      initial="hidden"
+      animate="show"
+      className={`${spaceGrotesk.className} min-h-screen bg-slate-950 text-slate-100`}
+    >
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-cyan-500/30 blur-[140px]" />
@@ -114,10 +151,8 @@ export default function Home() {
         </div>
 
         <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="sticky top-4 z-40 mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-6 py-3 backdrop-blur-xl"
+          variants={section}
+          className="will-change-opacity sticky top-4 z-40 mx-auto flex max-w-6xl items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-6 py-3 backdrop-blur-xl will-change-transform"
         >
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-200">
@@ -158,29 +193,41 @@ export default function Home() {
           </Link>
         </motion.header>
 
-        <section className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 pt-24 pb-20">
-          <motion.div variants={container} initial="hidden" animate="show" className="max-w-3xl">
+        <motion.section
+          variants={section}
+          className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 pt-24 pb-20"
+        >
+          <motion.div
+            variants={heroGroup}
+            className="will-change-opacity max-w-3xl will-change-transform"
+          >
             <motion.div
-              variants={item}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1.5 text-xs tracking-[0.2em] text-cyan-200 uppercase"
+              variants={heroItem}
+              className="will-change-opacity mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-1.5 text-xs tracking-[0.2em] text-cyan-200 uppercase will-change-transform"
             >
               <Sparkles className="h-4 w-4" />
               {loading ? 'Loading...' : `${stats.totalServers} Official Servers Available`}
             </motion.div>
             <motion.h1
-              variants={item}
-              className="text-4xl leading-tight font-semibold text-white md:text-6xl lg:text-7xl"
+              variants={heroItem}
+              className="will-change-opacity text-4xl leading-tight font-semibold text-white will-change-transform md:text-6xl lg:text-7xl"
             >
               Discover & Deploy
               <span className="block bg-gradient-to-r from-cyan-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
                 MCP Servers
               </span>
             </motion.h1>
-            <motion.p variants={item} className="mt-6 text-lg text-slate-300 md:text-xl">
+            <motion.p
+              variants={heroItem}
+              className="will-change-opacity mt-6 text-lg text-slate-300 will-change-transform md:text-xl"
+            >
               Your gateway to the Model Context Protocol ecosystem. Browse curated servers,
               one-click install, and manage your AI infrastructure from a unified dashboard.
             </motion.p>
-            <motion.div variants={item} className="mt-8 flex flex-wrap gap-4">
+            <motion.div
+              variants={heroItem}
+              className="will-change-opacity mt-8 flex flex-wrap gap-4 will-change-transform"
+            >
               <Link
                 href="/registry"
                 className={`cursor-pointer rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
@@ -197,10 +244,8 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-2xl sm:grid-cols-3 sm:p-8"
+            variants={statsGroup}
+            className="will-change-opacity grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-2xl will-change-transform sm:grid-cols-3 sm:p-8"
           >
             {[
               {
@@ -224,8 +269,8 @@ export default function Home() {
             ].map((stat) => (
               <motion.div
                 key={stat.label}
-                variants={item}
-                className="flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4"
+                variants={cardItem}
+                className="will-change-opacity flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 will-change-transform"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/5">
                   <stat.icon className={`h-6 w-6 ${stat.accent}`} />
@@ -239,17 +284,15 @@ export default function Home() {
               </motion.div>
             ))}
           </motion.div>
-        </section>
+        </motion.section>
       </div>
 
-      <section className="mx-auto max-w-6xl px-6 pb-20">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-        >
-          <motion.div variants={item} className="mb-8">
+      <motion.section variants={section} className="mx-auto max-w-6xl px-6 pb-20">
+        <motion.div variants={cardsGroup} className="will-change-opacity will-change-transform">
+          <motion.div
+            variants={cardItem}
+            className="will-change-opacity mb-8 will-change-transform"
+          >
             <p className="text-sm tracking-[0.2em] text-cyan-400 uppercase">Features</p>
             <h2 className="mt-2 text-3xl font-semibold text-white md:text-4xl">
               Everything you need to orchestrate MCP at scale
@@ -272,14 +315,11 @@ export default function Home() {
                 title: 'Management',
                 body: 'Unified dashboard to monitor health, view logs, and manage all your MCP servers in one place.',
               },
-            ].map((feature, index) => (
+            ].map((feature) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
-                className={`cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl ${hoverLift} ${glowRing}`}
+                variants={cardItem}
+                className={`will-change-opacity cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl will-change-transform ${hoverLift} ${glowRing}`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-200">
                   <feature.icon className="h-6 w-6" />
@@ -290,16 +330,14 @@ export default function Home() {
             ))}
           </div>
         </motion.div>
-      </section>
+      </motion.section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-20">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-        >
-          <motion.div variants={item} className="mb-8 flex items-center justify-between">
+      <motion.section variants={section} className="mx-auto max-w-6xl px-6 pb-20">
+        <motion.div variants={cardsGroup} className="will-change-opacity will-change-transform">
+          <motion.div
+            variants={cardItem}
+            className="will-change-opacity mb-8 flex items-center justify-between will-change-transform"
+          >
             <div>
               <p className="text-sm tracking-[0.2em] text-cyan-400 uppercase">Popular Servers</p>
               <h2 className="mt-2 text-3xl font-semibold text-white">Trending in the Registry</h2>
@@ -320,14 +358,11 @@ export default function Home() {
                     className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/5"
                   />
                 ))
-              : visibleServers.map((server, index) => (
+              : visibleServers.map((server) => (
                   <motion.div
                     key={server.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
-                    className={`cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-white/10 ${glowRing}`}
+                    variants={cardItem}
+                    className={`will-change-opacity cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl transition-all duration-200 will-change-transform hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-white/10 ${glowRing}`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
@@ -356,19 +391,16 @@ export default function Home() {
                 ))}
           </div>
         </motion.div>
-      </section>
+      </motion.section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-20">
+      <motion.section variants={section} className="mx-auto max-w-6xl px-6 pb-20">
         <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/10 via-slate-950/80 to-violet-500/10 p-8 backdrop-blur-2xl sm:p-10"
+          variants={cardsGroup}
+          className="will-change-opacity rounded-3xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/10 via-slate-950/80 to-violet-500/10 p-8 backdrop-blur-2xl will-change-transform sm:p-10"
         >
           <motion.div
-            variants={item}
-            className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between"
+            variants={cardItem}
+            className="will-change-opacity flex flex-col gap-6 will-change-transform md:flex-row md:items-center md:justify-between"
           >
             <div>
               <p className="text-sm tracking-[0.2em] text-cyan-200 uppercase">Get Started</p>
@@ -398,9 +430,9 @@ export default function Home() {
             </div>
           </motion.div>
         </motion.div>
-      </section>
+      </motion.section>
 
-      <footer className="mx-auto max-w-6xl px-6 pb-10">
+      <motion.footer variants={section} className="mx-auto max-w-6xl px-6 pb-10">
         <div className="flex flex-col gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3 text-sm text-slate-400">
             <ShieldCheck className="h-4 w-4 text-cyan-200" />
@@ -429,7 +461,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-      </footer>
-    </main>
+      </motion.footer>
+    </motion.main>
   )
 }
