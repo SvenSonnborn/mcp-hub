@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL") // "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model MCPServer {
@@ -16,8 +16,8 @@ model MCPServer {
   installUrl    String
   version       String
   category      Category
-  tags          String
-  configSchema  String?  @default("{}")
+  tags          String[]
+  configSchema  Json?    @default("{}")
   isOfficial    Boolean  @default(false)
   isVerified    Boolean  @default(false)
   downloadCount Int      @default(0)
@@ -36,7 +36,7 @@ model MCPInstallation {
 
   // Local config
   status   ServerStatus @default(PENDING)
-  config   String?      @default("{}")
+  config   Json?        @default("{}")
   port     Int?
   pid      Int?
 
