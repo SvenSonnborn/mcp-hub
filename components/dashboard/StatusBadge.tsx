@@ -10,7 +10,7 @@ const STATUS_STYLES: Record<
 > = {
   RUNNING: {
     label: 'Running',
-    dot: 'bg-emerald-500',
+    dot: 'bg-emerald-400',
     text: 'text-emerald-200',
   },
   STOPPED: {
@@ -20,13 +20,13 @@ const STATUS_STYLES: Record<
   },
   ERROR: {
     label: 'Error',
-    dot: 'bg-rose-500',
+    dot: 'bg-rose-400',
     text: 'text-rose-200',
   },
   LOADING: {
     label: 'Loading',
-    dot: 'bg-sky-500',
-    text: 'text-sky-200',
+    dot: 'bg-cyan-400',
+    text: 'text-cyan-200',
   },
 }
 

@@ -56,7 +56,7 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
   }, [installation.errorLog])
 
   return (
-    <Card className="border-slate-800 bg-slate-900/80 p-5 shadow-none transition hover:bg-slate-800/50">
+    <Card className="p-5 shadow-none transition-all duration-200 hover:-translate-y-1 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <StatusBadge status={status} />
@@ -68,7 +68,7 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
             variant="ghost"
             size="icon"
             className={cn(
-              'text-slate-300 hover:bg-slate-800',
+              'text-slate-300 hover:bg-white/10',
               status === 'RUNNING' && 'text-emerald-200'
             )}
             onClick={() => onAction(installation.id, 'start')}
@@ -79,7 +79,7 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="text-slate-300 hover:bg-slate-800"
+            className="text-slate-300 hover:bg-white/10"
             onClick={() => onAction(installation.id, 'stop')}
             aria-label="Stop server"
           >
@@ -88,7 +88,7 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="text-slate-300 hover:bg-slate-800"
+            className="text-slate-300 hover:bg-white/10"
             onClick={() => onAction(installation.id, 'restart')}
             aria-label="Restart server"
           >
@@ -97,7 +97,7 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="text-slate-300 hover:bg-slate-800"
+            className="text-slate-300 hover:bg-white/10"
             aria-label="Open settings"
           >
             <Settings />
@@ -105,7 +105,7 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            className={cn('text-slate-300 hover:bg-slate-800', showLogs && 'text-violet-200')}
+            className={cn('text-slate-300 hover:bg-white/10', showLogs && 'text-violet-200')}
             aria-label="Toggle logs"
             onClick={() => setShowLogs((prev) => !prev)}
           >
@@ -118,8 +118,8 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
         <span className="text-slate-200">{formatRelativeTime(installation.lastPing)}</span>
       </div>
       {showLogs ? (
-        <div className="mt-4 rounded-lg border border-slate-800 bg-slate-950 p-4">
-          <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+        <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <p className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">
             Recent Logs
           </p>
           {logLines.length > 0 ? (

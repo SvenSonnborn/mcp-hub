@@ -37,12 +37,12 @@ export function Header({ onMenuClick }: HeaderProps) {
   const pageTitle = getLabel(pathname) || breadcrumbs.at(-1)?.label || 'Dashboard'
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-800 bg-slate-950/80 px-4 backdrop-blur lg:px-8">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/10 bg-white/5 px-4 backdrop-blur-2xl lg:px-8">
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
           size="icon"
-          className="text-slate-300 hover:bg-slate-800 lg:hidden"
+          className="text-slate-300 hover:bg-white/10 lg:hidden"
           onClick={onMenuClick}
           aria-label="Open sidebar"
         >
@@ -50,7 +50,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         </Button>
         <div className="flex flex-col">
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-400">
-            <Link href="/dashboard" className="hover:text-slate-200">
+            <Link href="/dashboard" className="hover:text-white">
               MCP Hub
             </Link>
             {breadcrumbs.length > 0 ? <ChevronRight className="h-3 w-3" /> : null}
@@ -58,7 +58,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               <div key={crumb.href} className="flex items-center gap-2">
                 <Link
                   href={crumb.href}
-                  className="hover:text-slate-200"
+                  className="hover:text-white"
                   aria-current={index === breadcrumbs.length - 1 ? 'page' : undefined}
                 >
                   {crumb.label}
@@ -69,7 +69,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </nav>
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-semibold text-slate-100">{pageTitle}</h1>
-            <Separator orientation="vertical" className="h-4 bg-slate-800" />
+            <Separator orientation="vertical" className="h-4 bg-white/10" />
             <span className="text-xs text-slate-500">Console</span>
           </div>
         </div>
@@ -82,7 +82,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative text-slate-300 hover:bg-slate-800"
+                className="relative text-slate-300 hover:bg-white/10"
               >
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-violet-500" />
@@ -92,15 +92,16 @@ export function Header({ onMenuClick }: HeaderProps) {
           </Tooltip>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-slate-200 hover:bg-slate-800">
+              <Button variant="ghost" size="icon" className="text-slate-200 hover:bg-white/10">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-slate-800 text-xs text-slate-200">
-                    OU
-                  </AvatarFallback>
+                  <AvatarFallback className="bg-white/10 text-xs text-slate-200">OU</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent
+              align="end"
+              className="w-48 border-white/10 bg-slate-950/90 text-slate-100 backdrop-blur-xl"
+            >
               <DropdownMenuLabel>Operator</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>

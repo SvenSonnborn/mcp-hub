@@ -216,23 +216,23 @@ function MonitorContent() {
     return (
       <div className="space-y-6">
         <div className="grid gap-4 lg:grid-cols-2">
-          <Skeleton className="h-12 rounded-xl" />
-          <Skeleton className="h-12 rounded-xl" />
+          <Skeleton className="h-12 rounded-3xl" />
+          <Skeleton className="h-12 rounded-3xl" />
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 rounded-xl" />
+            <Skeleton key={index} className="h-24 rounded-3xl" />
           ))}
         </div>
-        <Skeleton className="h-64 rounded-2xl" />
-        <Skeleton className="h-80 rounded-2xl" />
+        <Skeleton className="h-64 rounded-3xl" />
+        <Skeleton className="h-80 rounded-3xl" />
       </div>
     )
   }
 
   if (installationsQuery.isError) {
     return (
-      <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-12 text-center text-rose-100">
+      <div className="rounded-3xl border border-rose-500/40 bg-rose-500/10 p-12 text-center text-rose-100 backdrop-blur-2xl">
         <p>Unable to load installations.</p>
         <Button variant="outline" className="mt-4" onClick={() => installationsQuery.refetch()}>
           Retry
@@ -243,15 +243,15 @@ function MonitorContent() {
 
   if (installations.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-800 bg-slate-900/60 p-16 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-slate-700 bg-slate-950 text-slate-400">
+      <div className="rounded-3xl border border-dashed border-white/15 bg-white/5 p-16 text-center backdrop-blur-2xl">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300">
           <Server className="h-6 w-6" />
         </div>
         <h3 className="mt-4 text-lg font-semibold text-slate-100">No servers installed</h3>
         <p className="mt-2 text-sm text-slate-400">
           Install a server from the registry to start monitoring it here.
         </p>
-        <Button asChild className="mt-6 bg-violet-600 text-white hover:bg-violet-500">
+        <Button asChild className="mt-6">
           <Link href="/registry">Browse Registry</Link>
         </Button>
       </div>
@@ -261,7 +261,7 @@ function MonitorContent() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-2xl">
           <label className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">
             Server
           </label>
@@ -270,7 +270,7 @@ function MonitorContent() {
               <select
                 value={selectedId ?? ''}
                 onChange={(event) => setSelectedId(event.target.value)}
-                className="h-11 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 transition focus:border-violet-500/60 focus:outline-none"
+                className="h-11 w-full rounded-2xl border border-white/10 bg-white/5 px-3 text-sm text-slate-100 transition focus:border-cyan-400/60 focus:outline-none"
               >
                 {installations.map((installation) => (
                   <option key={installation.id} value={installation.id} className="bg-slate-950">
@@ -296,7 +296,7 @@ function MonitorContent() {
             </span>
           </div>
         </div>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-2xl">
           <div className="flex items-center justify-between">
             <div>
               <label className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">
@@ -308,12 +308,12 @@ function MonitorContent() {
                   : 'Awaiting first ping'}
               </p>
             </div>
-            <div className="rounded-full border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-400">
+            <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">
               Auto-refresh 5s
             </div>
           </div>
           {healthQuery.isError ? (
-            <div className="mt-4 rounded-xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-100">
+            <div className="mt-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-100">
               Unable to load health metrics.
               <Button
                 variant="outline"
@@ -330,7 +330,7 @@ function MonitorContent() {
       {healthQuery.isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 rounded-xl" />
+            <Skeleton key={index} className="h-24 rounded-3xl" />
           ))}
         </div>
       ) : (
@@ -338,7 +338,7 @@ function MonitorContent() {
           <motion.div
             whileHover={{ y: -4 }}
             transition={{ duration: 0.2 }}
-            className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 shadow-none"
+            className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-none backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between">
               <div className="text-xs tracking-[0.2em] text-slate-500 uppercase">Uptime</div>
@@ -352,7 +352,7 @@ function MonitorContent() {
           <motion.div
             whileHover={{ y: -4 }}
             transition={{ duration: 0.2 }}
-            className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 shadow-none"
+            className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-none backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between">
               <div className="text-xs tracking-[0.2em] text-slate-500 uppercase">Avg Response</div>
@@ -366,7 +366,7 @@ function MonitorContent() {
           <motion.div
             whileHover={{ y: -4 }}
             transition={{ duration: 0.2 }}
-            className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 shadow-none"
+            className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-none backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between">
               <div className="text-xs tracking-[0.2em] text-slate-500 uppercase">
@@ -382,7 +382,7 @@ function MonitorContent() {
           <motion.div
             whileHover={{ y: -4 }}
             transition={{ duration: 0.2 }}
-            className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 shadow-none"
+            className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-none backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between">
               <div className="text-xs tracking-[0.2em] text-slate-500 uppercase">Error rate</div>
@@ -397,12 +397,12 @@ function MonitorContent() {
       )}
 
       {healthQuery.isLoading ? (
-        <Skeleton className="h-72 rounded-2xl" />
+        <Skeleton className="h-72 rounded-3xl" />
       ) : (
         <motion.div
           whileHover={{ y: -2 }}
           transition={{ duration: 0.2 }}
-          className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6"
+          className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-2xl"
         >
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -413,7 +413,7 @@ function MonitorContent() {
                 Response time & throughput
               </h3>
             </div>
-            <div className="rounded-full border border-slate-800 bg-slate-950 px-3 py-1 text-xs text-slate-400">
+            <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-400">
               Mock data
             </div>
           </div>
@@ -434,10 +434,11 @@ function MonitorContent() {
                 <YAxis stroke="#475569" tick={{ fontSize: 12 }} />
                 <Tooltip
                   contentStyle={{
-                    background: '#0f172a',
-                    border: '1px solid #1e293b',
+                    background: 'rgba(2,6,23,0.9)',
+                    border: '1px solid rgba(255,255,255,0.1)',
                     color: '#e2e8f0',
-                    borderRadius: 12,
+                    borderRadius: 16,
+                    backdropFilter: 'blur(16px)',
                   }}
                 />
                 <Area
@@ -460,20 +461,20 @@ function MonitorContent() {
         </motion.div>
       )}
 
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-2xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">Logs</p>
             <h3 className="mt-2 text-lg font-semibold text-slate-100">Recent runtime activity</h3>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-3 py-1 text-xs text-slate-400">
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-400">
             <Terminal className="h-3 w-3" />
             Live tail
           </div>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">
             <span className="text-slate-500">Filter</span>
             {(['ALL', 'INFO', 'WARN', 'ERROR'] as const).map((level) => (
               <button
@@ -482,7 +483,7 @@ function MonitorContent() {
                 className={cn(
                   'rounded-full px-2 py-1 text-[11px] font-semibold tracking-wide uppercase transition',
                   levelFilter === level
-                    ? 'bg-violet-500/20 text-violet-200'
+                    ? 'bg-cyan-500/20 text-cyan-200'
                     : 'text-slate-400 hover:text-slate-200'
                 )}
               >
@@ -496,12 +497,12 @@ function MonitorContent() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search logs (Cmd+K)"
-              className="h-10 rounded-xl border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-500"
+              className="h-10 rounded-2xl border-white/10 bg-white/5 text-slate-100 placeholder:text-slate-500"
             />
           </div>
           <Button
             variant="outline"
-            className="border-slate-800 bg-slate-950 text-slate-200 hover:bg-slate-900"
+            className="border-white/10 bg-white/5 text-slate-200 hover:border-cyan-400/40 hover:bg-white/10"
             onClick={() => {
               const element = viewportRef.current
               if (element) {
@@ -527,7 +528,7 @@ function MonitorContent() {
           {logsQuery.isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 8 }).map((_, index) => (
-                <Skeleton key={index} className="h-10 rounded-xl" />
+                <Skeleton key={index} className="h-10 rounded-2xl" />
               ))}
             </div>
           ) : logsQuery.isError ? (
@@ -538,7 +539,7 @@ function MonitorContent() {
               </Button>
             </div>
           ) : filteredLogs.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-800 bg-slate-950/70 p-10 text-center">
+            <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-10 text-center backdrop-blur-2xl">
               <p className="text-sm text-slate-300">No logs match your filters.</p>
               <p className="mt-2 text-xs text-slate-500">Try a different level or search term.</p>
             </div>
@@ -546,7 +547,7 @@ function MonitorContent() {
             <div
               ref={viewportRef}
               onScroll={handleScroll}
-              className="h-80 overflow-auto rounded-xl border border-slate-800 bg-slate-950/70"
+              className="h-80 overflow-auto rounded-2xl border border-white/10 bg-white/5 backdrop-blur-2xl"
             >
               <div style={{ height: totalHeight, position: 'relative' }}>
                 <div
@@ -557,7 +558,7 @@ function MonitorContent() {
                   {visibleLogs.map((log) => (
                     <div
                       key={log.id}
-                      className="flex h-11 items-center justify-between gap-3 border-b border-slate-900/80 px-4 text-xs text-slate-300"
+                      className="flex h-11 items-center justify-between gap-3 border-b border-white/5 px-4 text-xs text-slate-300"
                     >
                       <div className="flex items-center gap-3">
                         <span

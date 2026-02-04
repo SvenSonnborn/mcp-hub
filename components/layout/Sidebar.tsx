@@ -35,13 +35,13 @@ export function Sidebar({ expanded, onToggle, mobileOpen, onMobileClose }: Sideb
       ) : null}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex h-full flex-col border-r border-slate-800 bg-slate-950/95 backdrop-blur transition-[width,transform] duration-300',
+          'fixed inset-y-0 left-0 z-50 flex h-full flex-col border-r border-white/10 bg-slate-950/90 backdrop-blur-2xl transition-[width,transform] duration-300',
           expanded ? 'w-60' : 'w-16',
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         <div className={cn('flex h-16 items-center gap-3 px-4', expanded ? '' : 'justify-center')}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-sm font-semibold text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/20 text-sm font-semibold text-cyan-100">
             MCP
           </div>
           {expanded ? (
@@ -57,11 +57,11 @@ export function Sidebar({ expanded, onToggle, mobileOpen, onMobileClose }: Sideb
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
+                  'flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium transition-all',
                   expanded ? '' : 'justify-center',
                   active
-                    ? 'bg-violet-600 text-white'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                    ? 'border border-cyan-400/40 bg-white/10 text-white shadow-[0_0_25px_rgba(34,211,238,0.2)]'
+                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
                 )}
                 aria-current={active ? 'page' : undefined}
                 onClick={() => {
@@ -92,7 +92,7 @@ export function Sidebar({ expanded, onToggle, mobileOpen, onMobileClose }: Sideb
             type="button"
             onClick={onToggle}
             className={cn(
-              'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white',
+              'flex w-full items-center gap-2 rounded-2xl px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/5 hover:text-white',
               expanded ? '' : 'justify-center'
             )}
           >

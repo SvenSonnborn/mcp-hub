@@ -46,17 +46,17 @@ export function StatsRow({ total, running, stopped, errors }: StatsRowProps) {
           <Card
             key={stat.key}
             className={cn(
-              'border-slate-800 bg-slate-900/80 p-5 shadow-none',
+              'p-5 shadow-none transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]',
               isError && 'border-rose-500/40'
             )}
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs tracking-wide text-slate-400 uppercase">{stat.label}</p>
+                <p className="text-xs tracking-[0.3em] text-slate-400 uppercase">{stat.label}</p>
                 <div className="mt-3 flex items-center gap-2">
                   <span className="text-3xl font-semibold text-slate-100">{value}</span>
                   {isError ? (
-                    <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-xs font-semibold text-rose-200">
+                    <span className="rounded-full border border-rose-500/40 bg-rose-500/10 px-2 py-0.5 text-xs font-semibold text-rose-200">
                       Needs attention
                     </span>
                   ) : null}
@@ -64,8 +64,8 @@ export function StatsRow({ total, running, stopped, errors }: StatsRowProps) {
               </div>
               <div
                 className={cn(
-                  'flex h-10 w-10 items-center justify-center rounded-lg border border-slate-800 bg-slate-950',
-                  isError && 'border-rose-500/40 text-rose-300'
+                  'flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5',
+                  isError ? 'border-rose-500/40 text-rose-300' : 'text-cyan-200'
                 )}
               >
                 <Icon className="h-5 w-5" />
