@@ -14,10 +14,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       toastOptions={{
         classNames: {
-          toast: 'group toast bg-slate-950 text-slate-100 border border-slate-800',
+          toast:
+            'group toast border border-white/10 bg-slate-950/90 text-slate-100 backdrop-blur-xl',
           description: 'text-slate-400',
-          actionButton: 'bg-violet-600 text-white',
-          cancelButton: 'bg-slate-800 text-slate-200',
+          actionButton: 'bg-cyan-400 text-slate-950',
+          cancelButton: 'bg-white/10 text-slate-200',
         },
       }}
       {...props}

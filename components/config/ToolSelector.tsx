@@ -26,7 +26,7 @@ export function ToolSelector({ options, selected, onChange }: ToolSelectorProps)
         </div>
         <div className="group relative flex items-center text-slate-400">
           <Info className="h-4 w-4" />
-          <div className="pointer-events-none absolute top-6 right-0 z-10 w-56 rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-200 opacity-0 shadow-xl transition group-hover:opacity-100">
+          <div className="pointer-events-none absolute top-6 right-0 z-10 w-56 rounded-2xl border border-white/10 bg-slate-950/90 px-3 py-2 text-xs text-slate-200 opacity-0 shadow-xl backdrop-blur-xl transition group-hover:opacity-100">
             Each tool expects its config in a different location. Hover a card to see the path.
           </div>
         </div>
@@ -43,20 +43,20 @@ export function ToolSelector({ options, selected, onChange }: ToolSelectorProps)
               aria-checked={isActive}
               onClick={() => onChange(option.id)}
               className={cn(
-                'group relative flex w-full items-start gap-3 rounded-xl border-2 bg-slate-900/60 p-4 text-left transition',
+                'group relative flex w-full items-start gap-3 rounded-3xl border bg-white/5 p-4 text-left backdrop-blur-2xl transition-all',
                 isActive
-                  ? 'border-violet-500/80 bg-slate-900 shadow-[0_0_20px_rgba(139,92,246,0.15)]'
-                  : 'border-slate-800 hover:border-slate-700'
+                  ? 'border-cyan-400/60 bg-white/10 shadow-[0_0_25px_rgba(34,211,238,0.2)]'
+                  : 'border-white/10 hover:border-cyan-400/30 hover:bg-white/10'
               )}
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-800 bg-slate-950 text-violet-300">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-200">
                 <Icon className="h-5 w-5" />
               </span>
               <span className="flex-1">
                 <span className="flex items-center gap-2 text-sm font-semibold text-slate-100">
                   {option.label}
                   {isActive ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 px-2 py-0.5 text-xs text-violet-200">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-200">
                       <Check className="h-3 w-3" />
                       Selected
                     </span>

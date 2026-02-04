@@ -96,7 +96,7 @@ export function ConfigManagerClient() {
     <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
       <div className="space-y-6">
         <ToolSelector options={TOOL_OPTIONS} selected={selectedTool} onChange={setSelectedTool} />
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-2xl">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-semibold text-slate-200">Include stopped servers</h3>
@@ -109,15 +109,15 @@ export function ConfigManagerClient() {
                 checked={includeStopped}
                 onChange={(event) => setIncludeStopped(event.target.checked)}
               />
-              <div className="h-6 w-11 rounded-full bg-slate-800 peer-checked:bg-violet-600 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-slate-400 after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-white" />
+              <div className="h-6 w-11 rounded-full border border-white/10 bg-white/5 peer-checked:border-cyan-400/40 peer-checked:bg-cyan-400/60 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-slate-400 after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-slate-950" />
             </label>
           </div>
-          <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs text-slate-400">
+          <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400">
             <span>Detected installations</span>
             <span className="font-semibold text-slate-100">{data?.count ?? 0}</span>
           </div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-400">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-xs text-slate-400 backdrop-blur-2xl">
           <div className="flex items-center gap-2 text-slate-200">
             <p className="font-semibold">Config location</p>
             <TooltipProvider>
@@ -151,7 +151,7 @@ export function ConfigManagerClient() {
             className={cn(
               'rounded-full border px-3 py-1 text-xs',
               isLoading
-                ? 'border-slate-700 text-slate-400'
+                ? 'border-white/10 text-slate-400'
                 : error
                   ? 'border-rose-500/40 text-rose-200'
                   : 'border-emerald-500/40 text-emerald-200'
@@ -163,7 +163,7 @@ export function ConfigManagerClient() {
         {isLoading ? (
           <div className="space-y-4">
             <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-80 rounded-2xl" />
+            <Skeleton className="h-80 rounded-3xl" />
           </div>
         ) : error ? (
           <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-6 text-sm text-rose-100">
