@@ -94,9 +94,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="text-slate-200 hover:bg-white/10">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-white/10 text-xs text-slate-200">
-                    OU
-                  </AvatarFallback>
+                  <AvatarFallback className="bg-white/10 text-xs text-slate-200">OU</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
