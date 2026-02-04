@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 import { Bell, ChevronRight, Menu } from 'lucide-react'
 import { NAV_LABELS } from './navigation'
 import { ThemeToggle } from './ThemeToggle'
@@ -17,15 +18,32 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useAuth } from '@/components/providers/supabase-provider'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export type HeaderProps = {
   onMenuClick: () => void
 }
 
 const getLabel = (href: string) => NAV_LABELS[href] ?? href.replace('/', '')
+const getInitials = (email: string | null | undefined) => {
+  if (!email) return '??'
+
+  const [localPart, domainPart] = email.split('@')
+  const first = localPart?.[0]
+  const second = domainPart?.[0] ?? localPart?.[1]
+
+  if (!first) return '??'
+  if (!second) return first.toUpperCase()
+
+  return `${first}${second}`.toUpperCase()
+}
 
 export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, isLoading } = useAuth()
+  const supabase = useMemo(() => createSupabaseBrowserClient(), [])
   const segments = pathname.split('/').filter(Boolean)
   const breadcrumbs = segments.map((segment, index) => {
     const href = `/${segments.slice(0, index + 1).join('/')}`
@@ -35,6 +53,20 @@ export function Header({ onMenuClick }: HeaderProps) {
     }
   })
   const pageTitle = getLabel(pathname) || breadcrumbs.at(-1)?.label || 'Dashboard'
+  const avatarLabel = isLoading ? '...' : getInitials(user?.email)
+  const userLabel = isLoading ? 'Loading...' : (user?.email ?? 'Unknown user')
+
+  const handleSignOut = async () => {
+    if (!supabase) {
+      router.push('/login')
+      router.refresh()
+      return
+    }
+
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/10 bg-white/5 px-4 backdrop-blur-2xl lg:px-8">
@@ -94,7 +126,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="text-slate-200 hover:bg-white/10">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-white/10 text-xs text-slate-200">OU</AvatarFallback>
+                  <AvatarFallback className="bg-white/10 text-xs text-slate-200">
+                    {avatarLabel}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -102,12 +136,14 @@ export function Header({ onMenuClick }: HeaderProps) {
               align="end"
               className="w-48 border-white/10 bg-slate-950/90 text-slate-100 backdrop-blur-xl"
             >
-              <DropdownMenuLabel>Operator</DropdownMenuLabel>
+              <DropdownMenuLabel>{userLabel}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-rose-400">Sign out</DropdownMenuItem>
+              <DropdownMenuItem className="text-rose-400" onClick={handleSignOut}>
+                Sign out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
