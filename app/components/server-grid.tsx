@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { InstallActions } from '@/components/registry/InstallActions'
 import type { Server, ServerTag } from '@/lib/schemas'
 
 const TAG_COLORS: Record<ServerTag | string, string> = {
@@ -63,15 +64,18 @@ function ServerCard({ server }: { server: Server }) {
             </Badge>
           ))}
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm" className="flex-1" asChild>
-            <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">
-              GitHub
-            </a>
-          </Button>
-          <Button size="sm" className="flex-1" asChild>
-            <Link href={`/servers/${server.id}`}>View Details</Link>
-          </Button>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" className="flex-1" asChild>
+              <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">
+                GitHub
+              </a>
+            </Button>
+            <Button variant="secondary" size="sm" className="flex-1" asChild>
+              <Link href={`/servers/${server.id}`}>View Details</Link>
+            </Button>
+          </div>
+          <InstallActions serverId={server.id} size="sm" className="w-full" />
         </div>
       </CardContent>
     </Card>
