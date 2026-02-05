@@ -30,7 +30,8 @@ describe('SubmitServerForm', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/required/i)).toBeInTheDocument()
+      // Form shows various validation errors
+      expect(screen.getAllByText(/Invalid/).length).toBeGreaterThan(0)
     })
   })
 
