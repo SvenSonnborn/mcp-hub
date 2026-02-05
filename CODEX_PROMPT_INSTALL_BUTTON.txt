@@ -1,0 +1,92 @@
+# Task: Add Install Button to Registry Server Cards
+
+## File to Modify
+`/home/ubuntu/.openclaw/workspace/mcp-hub/app/components/server-grid.tsx`
+
+## Requirements
+
+1. **Add a third "Install" button** to the `ServerCard` component
+2. **Layout:**
+   - Row 1: "GitHub" (secondary) + "View Details" (secondary) - 50/50 split
+   - Row 2: "Install Server" (primary CTA) - full width
+3. **The Install button should be the CTA** (primary style), not the Details button
+4. **Use the existing `InstallActions` component** from `@/components/registry/InstallActions`
+5. **Preserve the existing visual style** of the app (glassmorphism, colors, animations)
+
+## Current Button Section (lines 66-73)
+```tsx
+<div className="flex gap-2">
+  <Button variant="secondary" size="sm" className="flex-1" asChild>
+    <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">
+      GitHub
+    </a>
+  </Button>
+  <Button size="sm" className="flex-1" asChild>
+    <Link href={`/servers/${server.id}`}>View Details</Link>
+  </Button>
+</div>
+```
+
+## Target Layout
+```tsx
+<div className="space-y-2">
+  {/* Row 1: GitHub + Details */}
+  <div className="flex gap-2">
+    <Button variant="secondary" size="sm" className="flex-1" asChild>
+      <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">
+        GitHub
+      </a>
+    </Button>
+    <Button variant="secondary" size="sm" className="flex-1" asChild>
+      <Link href={`/servers/${server.id}`}>View Details</Link>
+    </Button>
+  </div>
+  {/* Row 2: Install CTA - full width */}
+  <InstallActions serverId={server.id} size="sm" className="w-full" />
+</div>
+```
+
+## InstallActions Component Reference
+Located at: `/home/ubuntu/.openclaw/workspace/mcp-hub/components/registry/InstallActions.tsx`
+
+Props:
+- `serverId: string` (required)
+- `className?: string`
+- `onInstalled?: (installationId: string) => void`
+
+The component returns a `<Button>` element and handles:
+- Loading state with spinner
+- API call to POST /api/installations
+- Success/error toasts
+- router.refresh() on success
+
+## Important Notes
+
+1. **Import required:** Add `import { InstallActions } from '@/components/registry/InstallActions'`
+2. **Change "View Details" to variant="secondary"** (was primary before)
+3. **The Install button should be the primary action** - it keeps its primary styling from the InstallActions component
+4. **Keep all existing hover effects and animations** on the Card component
+5. **Size should remain "sm"** for all buttons for consistency
+
+## Visual Style Reference
+
+Current card style (preserve this):
+```tsx
+<Card className="group flex h-full flex-col transition-all duration-200 hover:-translate-y-1 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]">
+```
+
+Button styles to use:
+- GitHub: `variant="secondary" size="sm" className="flex-1"`
+- View Details: `variant="secondary" size="sm" className="flex-1"`
+- Install: Use `InstallActions` component with `size="sm" className="w-full"`
+
+## Testing
+After implementation, run:
+```bash
+npm run test:ci
+npm run type-check
+npm run format
+npm run build
+```
+
+All tests must pass before creating a PR.

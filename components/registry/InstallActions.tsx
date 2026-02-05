@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button'
 type InstallActionsProps = {
   serverId: string
   className?: string
+  size?: 'default' | 'sm' | 'lg' | 'icon'
   onInstalled?: (installationId: string) => void
 }
 
-export function InstallActions({ serverId, className, onInstalled }: InstallActionsProps) {
+export function InstallActions({ serverId, className, size, onInstalled }: InstallActionsProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -49,7 +50,7 @@ export function InstallActions({ serverId, className, onInstalled }: InstallActi
   }
 
   return (
-    <Button className={className} onClick={handleInstall} disabled={isLoading}>
+    <Button size={size} className={className} onClick={handleInstall} disabled={isLoading}>
       {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
       {isLoading ? 'Installing...' : 'Install Server'}
     </Button>
