@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "🧪 Running full test suite before push..."
+npm run test:ci
+
+echo "✅ All checks passed! Pushing..."
