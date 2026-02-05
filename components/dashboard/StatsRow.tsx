@@ -36,7 +36,7 @@ export function StatsRow({ total, running, stopped, errors }: StatsRowProps) {
   const values = { total, running, stopped, errors }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {statCards.map((stat) => {
         const Icon = stat.icon
         const value = values[stat.key]

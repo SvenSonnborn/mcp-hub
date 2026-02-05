@@ -120,23 +120,23 @@ export function ServerGrid({ initialServers, allTags }: ServerGridProps) {
       {/* Search */}
       <section className="container mx-auto px-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="mx-auto flex w-full max-w-2xl gap-2 rounded-3xl border border-white/10 bg-white/5 p-3 backdrop-blur-2xl lg:mx-0">
+          <div className="mx-auto flex w-full max-w-2xl flex-col gap-2 rounded-3xl border border-white/10 bg-white/5 p-3 backdrop-blur-2xl sm:flex-row lg:mx-0">
             <Input
               placeholder="Search servers by name, tag, or functionality..."
-              className="h-12 border-transparent bg-transparent text-lg text-slate-100 placeholder:text-slate-500 focus-visible:ring-0"
+              className="min-h-11 border-transparent bg-transparent text-base text-slate-100 placeholder:text-slate-500 focus-visible:ring-0 sm:text-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <Button
               size="lg"
-              className="px-8"
+              className="min-h-11 px-8"
               disabled={!searchQuery.trim()}
               onClick={() => setSearchQuery('')}
             >
               {searchQuery ? 'Clear' : 'Search'}
             </Button>
           </div>
-          <Button asChild size="lg" className="rounded-full px-6">
+          <Button asChild size="lg" className="min-h-11 w-full rounded-full px-6 lg:w-auto">
             <Link href="/registry/submit">Submit Server</Link>
           </Button>
         </div>
@@ -148,7 +148,7 @@ export function ServerGrid({ initialServers, allTags }: ServerGridProps) {
           <span className="mr-2 text-sm text-slate-400">Filter by:</span>
           <Badge
             variant={selectedTag === '' ? 'default' : 'outline'}
-            className={`cursor-pointer ${selectedTag === '' ? 'border-cyan-400/40 bg-cyan-500/15 text-cyan-200' : 'hover:bg-white/10'}`}
+            className={`min-h-11 cursor-pointer px-3 sm:min-h-8 ${selectedTag === '' ? 'border-cyan-400/40 bg-cyan-500/15 text-cyan-200' : 'hover:bg-white/10'}`}
             onClick={() => setSelectedTag('')}
           >
             All
@@ -157,7 +157,7 @@ export function ServerGrid({ initialServers, allTags }: ServerGridProps) {
             <Badge
               key={tag}
               variant={selectedTag === tag ? 'default' : 'outline'}
-              className={`cursor-pointer ${TAG_COLORS[tag] || ''} ${selectedTag === tag ? '' : 'hover:bg-white/10'}`}
+              className={`min-h-11 cursor-pointer px-3 sm:min-h-8 ${TAG_COLORS[tag] || ''} ${selectedTag === tag ? '' : 'hover:bg-white/10'}`}
               onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
             >
               {tag}
@@ -173,7 +173,7 @@ export function ServerGrid({ initialServers, allTags }: ServerGridProps) {
                   setSelectedTag('')
                   setSearchQuery('')
                 }}
-                className="ml-3 text-cyan-300 hover:text-cyan-200 hover:underline"
+                className="ml-3 inline-flex min-h-11 items-center text-cyan-300 hover:text-cyan-200 hover:underline"
               >
                 Clear all filters
               </button>
