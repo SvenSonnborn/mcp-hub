@@ -1,7 +1,9 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { getAllServers, getAllTags } from '@/lib/data'
 import { ServerGrid } from '@/app/components/server-grid'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function RegistryPage() {
@@ -16,7 +18,12 @@ export default function RegistryPage() {
           Browse official MCP servers and jump into the install details.
         </p>
       </div>
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-100 shadow-[0_0_40px_rgba(15,23,42,0.35)] backdrop-blur-2xl">
+      <div
+        className={[
+          'rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-100',
+          'shadow-[0_0_40px_rgba(15,23,42,0.35)] backdrop-blur-2xl',
+        ].join(' ')}
+      >
         <Suspense
           fallback={
             <div className="space-y-4">
@@ -33,6 +40,29 @@ export default function RegistryPage() {
             <ServerGrid initialServers={servers} allTags={tags} />
           </NuqsAdapter>
         </Suspense>
+      </div>
+      <div
+        className={[
+          'rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-100',
+          'backdrop-blur-2xl',
+        ].join(' ')}
+      >
+        <div
+          className={[
+            'flex flex-col items-start justify-between gap-4',
+            'md:flex-row md:items-center',
+          ].join(' ')}
+        >
+          <div>
+            <p className="text-xs tracking-[0.3em] text-cyan-300 uppercase">Share your server</p>
+            <p className="mt-2 text-sm text-slate-300">
+              Have a server to share? Submit it for review and we will add it to the registry.
+            </p>
+          </div>
+          <Button asChild size="lg" className="rounded-full px-6">
+            <Link href="/registry/submit">Submit Server</Link>
+          </Button>
+        </div>
       </div>
     </div>
   )
