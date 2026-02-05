@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🧪 Running full test suite before push..."
+npm run test:ci
+
+echo "🏗️ Running build check..."
+npm run build
+
+echo "✅ All checks passed! Pushing..."
