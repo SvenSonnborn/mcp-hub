@@ -1,29 +1,57 @@
 'use client'
 
-import { Copy } from 'lucide-react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Loader2, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 
-export function InstallActions({ npmPackage }: { npmPackage?: string | null }) {
-  const handleCopyInstall = async () => {
-    if (!npmPackage) {
-      toast.error('No install command available')
+type InstallActionsProps = {
+  serverId: string
+  className?: string
+  onInstalled?: (installationId: string) => void
+}
+
+export function InstallActions({ serverId, className, onInstalled }: InstallActionsProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleInstall = async () => {
+    if (!serverId) {
+      toast.error('Missing server ID')
       return
     }
+    setIsLoading(true)
     try {
-      await navigator.clipboard.writeText(`npx ${npmPackage}`)
-      toast.success('Install command copied')
-    } catch (error) {
-      toast.error('Unable to copy install command', {
-        description: error instanceof Error ? error.message : 'Check clipboard permissions.',
+      const response = await fetch('/api/installations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ serverId }),
       })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(payload?.error ?? 'Unable to install server')
+      }
+      toast.success(payload?.alreadyInstalled ? 'Server already installed' : 'Installation started')
+      if (payload?.installation?.id) {
+        onInstalled?.(payload.installation.id)
+      }
+      router.refresh()
+    } catch (error) {
+      toast.error('Installation failed', {
+        description: error instanceof Error ? error.message : 'Please try again.',
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
-    <Button variant="outline" className="flex-1" onClick={handleCopyInstall}>
-      <Copy className="h-4 w-4" />
-      Copy Install Command
+    <Button className={className} onClick={handleInstall} disabled={isLoading}>
+      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+      {isLoading ? 'Installing...' : 'Install Server'}
     </Button>
   )
 }
