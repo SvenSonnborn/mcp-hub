@@ -30,6 +30,7 @@ export const ServerSchema = z.object({
   type: z.enum(['local', 'remote']),
   remoteUrl: z.string().url().optional(),
   npmPackage: z.string().optional(),
+  configSchema: z.record(z.string(), z.any()).optional(),
   downloads: z.string(),
   version: z.string().default('1.0.0'),
   lastUpdated: z.string().datetime().optional(),

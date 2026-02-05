@@ -12,6 +12,18 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-filesystem",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "paths": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Allowed directories",
+            "default": ["/Users/$USER/Documents"]
+          }
+        },
+        "required": ["paths"]
+      },
       "downloads": "50k+",
       "version": "1.0.0",
       "license": "MIT",
@@ -32,6 +44,16 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-github",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "GitHub Personal Access Token"
+          }
+        },
+        "required": ["token"]
+      },
       "downloads": "45k+",
       "version": "1.0.0",
       "license": "MIT",
@@ -52,6 +74,17 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-postgres",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "connectionString": {
+            "type": "string",
+            "description": "PostgreSQL connection string",
+            "default": "postgresql://localhost:5432/mydb"
+          }
+        },
+        "required": ["connectionString"]
+      },
       "downloads": "30k+",
       "version": "1.0.0",
       "license": "MIT",
@@ -71,6 +104,16 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-brave-search",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "type": "string",
+            "description": "Brave Search API Key"
+          }
+        },
+        "required": ["apiKey"]
+      },
       "downloads": "25k+",
       "version": "1.0.0",
       "license": "MIT",
@@ -89,6 +132,16 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-puppeteer",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "headless": {
+            "type": "boolean",
+            "description": "Run in headless mode",
+            "default": true
+          }
+        }
+      },
       "downloads": "20k+",
       "version": "1.0.0",
       "license": "MIT",
@@ -109,6 +162,17 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-sqlite",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "dbPath": {
+            "type": "string",
+            "description": "Path to SQLite database file",
+            "default": "./data.db"
+          }
+        },
+        "required": ["dbPath"]
+      },
       "downloads": "18k+",
       "version": "1.0.0",
       "license": "MIT",
@@ -128,6 +192,16 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-fetch",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "maxResponseSize": {
+            "type": "number",
+            "description": "Max response size in bytes",
+            "default": 10000
+          }
+        }
+      },
       "downloads": "15k+",
       "version": "1.0.0",
       "license": "MIT",
@@ -143,6 +217,17 @@
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/git",
       "type": "local",
       "npmPackage": "@modelcontextprotocol/server-git",
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "repositoryPath": {
+            "type": "string",
+            "description": "Path to Git repository",
+            "default": "."
+          }
+        },
+        "required": ["repositoryPath"]
+      },
       "downloads": "12k+",
       "version": "1.0.0",
       "license": "MIT",
