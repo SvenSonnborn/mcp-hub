@@ -13,8 +13,6 @@ type ServerEntry = {
   url?: string
 }
 
-const FALLBACK_COMMAND = 'node'
-
 const toSafeName = (name: string) =>
   name
     .trim()
@@ -36,26 +34,53 @@ const toServerEntry = (installation: InstallationWithServer): ServerEntry => {
     }
   }
 
-  const command = typeof config.command === 'string' ? config.command : FALLBACK_COMMAND
-  const args = Array.isArray(config.args)
-    ? config.args.filter((arg) => typeof arg === 'string')
-    : []
-  const env: Record<string, string> =
-    config.env && typeof config.env === 'object' && !Array.isArray(config.env)
-      ? Object.fromEntries(
-          Object.entries(config.env as Record<string, unknown>).filter(
-            ([, value]) => typeof value === 'string'
-          ) as [string, string][]
-        )
-      : {}
+  const installUrl = installation.server.installUrl || ''
+  const npmPackage = installUrl.replace(/^npm:/, '') || '@modelcontextprotocol/server-filesystem'
+
+  const configArgs: string[] = []
+  const env: Record<string, string> = {}
+
+  if (config.paths && Array.isArray(config.paths)) {
+    configArgs.push(...config.paths.filter((path): path is string => typeof path === 'string'))
+  }
+
+  if (config.dbPath && typeof config.dbPath === 'string') {
+    configArgs.push(config.dbPath)
+  }
+
+  if (config.connectionString && typeof config.connectionString === 'string') {
+    configArgs.push(config.connectionString)
+  }
+
+  if (config.repositoryPath && typeof config.repositoryPath === 'string') {
+    configArgs.push(config.repositoryPath)
+  }
+
+  if (config.token && typeof config.token === 'string') {
+    env.GITHUB_TOKEN = config.token
+  }
+
+  if (config.apiKey && typeof config.apiKey === 'string') {
+    env.BRAVE_API_KEY = config.apiKey
+  }
+
+  if (
+    config.token &&
+    typeof config.token === 'string' &&
+    installation.server.name.toLowerCase().includes('postgres')
+  ) {
+    env.DATABASE_URL =
+      (config.connectionString as string | undefined) ||
+      (typeof config.connectionString === 'string' ? config.connectionString : '')
+  }
 
   return {
     name: toSafeName(installation.server.name),
-    command,
-    args,
+    command: 'npx',
+    args: ['-y', npmPackage, ...configArgs],
     env,
     transport: 'stdio',
-    url: installation.server.installUrl,
+    url: installUrl,
   }
 }
 

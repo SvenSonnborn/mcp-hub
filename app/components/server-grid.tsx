@@ -87,7 +87,7 @@ function ServerCard({ server }: { server: Server }) {
               className="w-full"
             />
           ) : (
-            <InstallActions serverId={server.id} size="sm" className="w-full" />
+            <InstallActions serverId={server.id} server={server} size="sm" className="w-full" />
           )}
         </div>
       </CardContent>

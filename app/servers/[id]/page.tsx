@@ -147,7 +147,7 @@ export default async function ServerPage({ params }: { params: { id: string } })
                       </div>
                     </div>
                   ) : (
-                    <InstallActions serverId={server.id} />
+                    <InstallActions serverId={server.id} server={server} />
                   )}
                   {installation ? (
                     <div>

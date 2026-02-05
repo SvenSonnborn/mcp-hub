@@ -61,6 +61,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}))
   const serverId = typeof body?.serverId === 'string' ? body.serverId : null
+  const config =
+    body?.config && typeof body.config === 'object' && !Array.isArray(body.config)
+      ? (body.config as Record<string, unknown>)
+      : undefined
 
   if (!serverId) {
     return NextResponse.json({ error: 'Missing serverId' }, { status: 400 })
@@ -93,6 +97,7 @@ export async function POST(request: Request) {
     data: {
       serverId: server.id,
       status: ServerStatus.PENDING,
+      config: config ? { ...config, type: 'local' } : { type: 'local' },
     },
     include: {
       server: {
