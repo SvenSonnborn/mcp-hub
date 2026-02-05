@@ -4,17 +4,25 @@ Your gateway to the Model Context Protocol ecosystem. Discover, evaluate, and in
 
 ## Features
 
-- **Server Discovery**: Browse 8+ official MCP servers with detailed information
+- **Authentication**: Supabase Auth with GitHub OAuth
+- **Dashboard**: Manage installed servers and actions
+- **Real-time Monitoring**: Health metrics, logs, and charts
+- **Config Generator**: Export configs for Claude, Cursor, and Windsurf
+- **Status Lifecycle Simulation**: PENDING → INSTALLING → RUNNING
+- **Server Registry**: Search and filter available servers
 - **Type-Safe Data**: Zod-validated JSON data layer with full TypeScript support
 - **Responsive UI**: Built with Next.js 16, Tailwind CSS v4, and shadcn/ui
-- **Search & Filter**: Find servers by name, description, or tags
-- **Static Export**: Optimized for static hosting (Vercel, Netlify, GitHub Pages)
 
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
 - **Styling**: Tailwind CSS v4
 - **Components**: shadcn/ui (Radix + Tailwind)
+- **Database**: PostgreSQL (Neon) with Prisma ORM
+- **Auth**: Supabase Auth
+- **State Management**: React Query (TanStack Query)
+- **Charts**: Recharts
+- **Animation**: Framer Motion
 - **Validation**: Zod for runtime type checking
 - **Language**: TypeScript 5
 - **Package Manager**: npm
@@ -42,32 +50,45 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### Environment Variables
+
+```
+DATABASE_URL=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
 ### Build for Production
 
 ```bash
 npm run build
 ```
 
-The static export will be in the `dist` folder.
-
 ## Project Structure
 
 ```
 mcp-hub/
-├── app/                    # Next.js App Router
-│   ├── page.tsx           # Home page with server grid
-│   ├── layout.tsx         # Root layout
-│   └── globals.css        # Global styles
-├── components/            # React components
-│   └── ui/               # shadcn/ui components
-├── data/                  # JSON data files
-│   └── servers.json      # MCP server data
-├── lib/                   # Utility functions
-│   ├── data.ts           # Data access layer
-│   ├── schemas.ts        # Zod schemas & types
-│   └── utils.ts          # Helper utilities
-├── public/               # Static assets
-└── next.config.ts        # Next.js configuration
+├── app/
+│   ├── (dashboard)/        # Dashboard layout group
+│   │   ├── dashboard/      # Overview page
+│   │   ├── registry/       # Server browser
+│   │   ├── monitor/        # Health monitoring
+│   │   └── config/         # Config generator
+│   ├── api/                # API routes
+│   │   ├── installations/  # CRUD + lifecycle
+│   │   ├── health/         # Health metrics
+│   │   └── config/         # Config generation
+│   ├── servers/[id]/       # Server detail pages
+│   ├── login/              # Auth pages
+│   └── page.tsx            # Landing page
+├── components/
+│   ├── dashboard/          # Dashboard components
+│   ├── config/             # Config manager
+│   ├── monitor/            # Monitoring UI
+│   └── ui/                 # shadcn components
+├── lib/                    # Utilities + lifecycle simulator
+├── prisma/                 # Database schema
+└── data/servers.json       # Static server data
 ```
 
 ## Data Layer
@@ -170,11 +191,11 @@ Example:
 
 ## Roadmap
 
-- [x] Task 1: UI Foundation with server grid
-- [x] Task 2: JSON data layer with type safety
-- [ ] Task 3: Static detail pages for each server
-- [ ] Task 4: Search functionality with filtering
-- [ ] Task 5: Submit server form
+- [x] Task 1: UI Foundation
+- [x] Task 2: JSON data layer
+- [x] Task 3: Server detail pages
+- [x] Task 4: Search functionality
+- [x] Task 5: Submit server form (partially done, can be added later)
 
 ## License
 

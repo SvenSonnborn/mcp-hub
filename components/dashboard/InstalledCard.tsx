@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { FileText, RotateCw, Settings, Square, Play } from 'lucide-react'
 import { Card } from '@/components/ui/card'
@@ -94,13 +95,10 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
           >
             <RotateCw />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-slate-300 hover:bg-white/10"
-            aria-label="Open settings"
-          >
-            <Settings />
+          <Button asChild variant="ghost" size="icon" className="text-slate-300 hover:bg-white/10">
+            <Link href={`/servers/${installation.server.id}#config`} aria-label="Open settings">
+              <Settings />
+            </Link>
           </Button>
           <Button
             variant="ghost"
