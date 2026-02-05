@@ -44,11 +44,13 @@ describe('SubmitServerForm', () => {
     const user = userEvent.setup()
     render(<SubmitServerForm />)
 
-    const tagButtons = screen.getAllByRole('button').filter((btn) =>
-      ['api', 'tools', 'github', 'database', 'ai', 'cloud'].includes(
-        btn.textContent?.toLowerCase() || ''
+    const tagButtons = screen
+      .getAllByRole('button')
+      .filter((btn) =>
+        ['api', 'tools', 'github', 'database', 'ai', 'cloud'].includes(
+          btn.textContent?.toLowerCase() || ''
+        )
       )
-    )
 
     // Click 6 tags
     for (let i = 0; i < Math.min(6, tagButtons.length); i++) {
