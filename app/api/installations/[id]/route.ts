@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { ServerStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { stopLifecycleSimulation } from '@/lib/lifecycle-simulator'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       },
     })
 
+    if (body?.status === ServerStatus.ERROR || body?.status === ServerStatus.STOPPED) {
+      stopLifecycleSimulation(id)
+    }
+
     return NextResponse.json({
       installation: {
         id: updated.id,
@@ -65,6 +70,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const { id } = await params
 
   try {
+    stopLifecycleSimulation(id)
     await prisma.mCPInstallation.delete({
       where: { id },
     })

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { stopLifecycleSimulation } from '@/lib/lifecycle-simulator'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +43,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         },
       },
     })
+
+    if (nextStatus === 'STOPPED' || nextStatus === 'ERROR') {
+      stopLifecycleSimulation(id)
+    }
 
     return NextResponse.json({
       installation: {
