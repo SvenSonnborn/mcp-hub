@@ -119,20 +119,25 @@ export function ServerGrid({ initialServers, allTags }: ServerGridProps) {
     <>
       {/* Search */}
       <section className="container mx-auto px-4">
-        <div className="mx-auto flex max-w-2xl gap-2 rounded-3xl border border-white/10 bg-white/5 p-3 backdrop-blur-2xl">
-          <Input
-            placeholder="Search servers by name, tag, or functionality..."
-            className="h-12 border-transparent bg-transparent text-lg text-slate-100 placeholder:text-slate-500 focus-visible:ring-0"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button
-            size="lg"
-            className="px-8"
-            disabled={!searchQuery.trim()}
-            onClick={() => setSearchQuery('')}
-          >
-            {searchQuery ? 'Clear' : 'Search'}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mx-auto flex w-full max-w-2xl gap-2 rounded-3xl border border-white/10 bg-white/5 p-3 backdrop-blur-2xl lg:mx-0">
+            <Input
+              placeholder="Search servers by name, tag, or functionality..."
+              className="h-12 border-transparent bg-transparent text-lg text-slate-100 placeholder:text-slate-500 focus-visible:ring-0"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button
+              size="lg"
+              className="px-8"
+              disabled={!searchQuery.trim()}
+              onClick={() => setSearchQuery('')}
+            >
+              {searchQuery ? 'Clear' : 'Search'}
+            </Button>
+          </div>
+          <Button asChild size="lg" className="rounded-full px-6">
+            <Link href="/registry/submit">Submit Server</Link>
           </Button>
         </div>
       </section>
