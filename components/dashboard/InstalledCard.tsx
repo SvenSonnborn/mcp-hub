@@ -64,51 +64,63 @@ export function InstalledCard({ installation, onAction }: InstalledCardProps) {
           <h3 className="mt-3 text-lg font-semibold text-slate-100">{installation.server.name}</h3>
           <p className="mt-1 text-sm text-slate-400">Version {installation.server.version}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              'text-slate-300 hover:bg-white/10',
-              status === 'RUNNING' && 'text-emerald-200'
-            )}
-            onClick={() => onAction(installation.id, 'start')}
-            aria-label="Start server"
-          >
-            <Play />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-slate-300 hover:bg-white/10"
-            onClick={() => onAction(installation.id, 'stop')}
-            aria-label="Stop server"
-          >
-            <Square />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-slate-300 hover:bg-white/10"
-            onClick={() => onAction(installation.id, 'restart')}
-            aria-label="Restart server"
-          >
-            <RotateCw />
-          </Button>
-          <Button asChild variant="ghost" size="icon" className="text-slate-300 hover:bg-white/10">
-            <Link href={`/servers/${installation.server.id}#config`} aria-label="Open settings">
-              <Settings />
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn('text-slate-300 hover:bg-white/10', showLogs && 'text-violet-200')}
-            aria-label="Toggle logs"
-            onClick={() => setShowLogs((prev) => !prev)}
-          >
-            <FileText />
-          </Button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'min-h-11 min-w-11 text-slate-300 hover:bg-white/10',
+                status === 'RUNNING' && 'text-emerald-200'
+              )}
+              onClick={() => onAction(installation.id, 'start')}
+              aria-label="Start server"
+            >
+              <Play />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="min-h-11 min-w-11 text-slate-300 hover:bg-white/10"
+              onClick={() => onAction(installation.id, 'stop')}
+              aria-label="Stop server"
+            >
+              <Square />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="min-h-11 min-w-11 text-slate-300 hover:bg-white/10"
+              onClick={() => onAction(installation.id, 'restart')}
+              aria-label="Restart server"
+            >
+              <RotateCw />
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="min-h-11 min-w-11 text-slate-300 hover:bg-white/10"
+            >
+              <Link href={`/servers/${installation.server.id}#config`} aria-label="Open settings">
+                <Settings />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'min-h-11 min-w-11 text-slate-300 hover:bg-white/10',
+                showLogs && 'text-violet-200'
+              )}
+              aria-label="Toggle logs"
+              onClick={() => setShowLogs((prev) => !prev)}
+            >
+              <FileText />
+            </Button>
+          </div>
         </div>
       </div>
       <div className="mt-4 flex items-center justify-between text-sm text-slate-400">

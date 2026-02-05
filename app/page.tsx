@@ -1,11 +1,18 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, useMotionValue, useMotionValueEvent, useSpring } from 'framer-motion'
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useSpring,
+} from 'framer-motion'
 import {
   ArrowRight,
   Compass,
   Layers,
+  Menu,
   Settings,
   Server,
   ShieldCheck,
@@ -13,6 +20,7 @@ import {
   Download,
   Users,
   Activity,
+  X,
 } from 'lucide-react'
 import { Space_Grotesk } from 'next/font/google'
 import Link from 'next/link'
@@ -140,6 +148,7 @@ export default function Home() {
   const showDemoServers = !loading && servers.length === 0
   const visibleServers = showDemoServers ? fallbackServers : servers
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const displayName = useMemo(() => {
     if (!user?.email) return 'User'
@@ -160,6 +169,19 @@ export default function Home() {
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [menuOpen])
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeydown)
+    return () => document.removeEventListener('keydown', handleKeydown)
+  }, [mobileMenuOpen])
 
   return (
     <motion.main
@@ -210,79 +232,178 @@ export default function Home() {
               GitHub
             </a>
           </nav>
-          <div className="relative flex items-center gap-3">
-            {authLoading ? (
-              <div className="h-10 w-28 animate-pulse rounded-full border border-white/10 bg-white/10" />
-            ) : user ? (
-              <div ref={menuRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen((prev) => !prev)}
-                  className={`flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 transition-all duration-200 hover:border-cyan-300/40 ${glowRing}`}
-                >
-                  <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-cyan-500/20 text-xs font-semibold text-cyan-100">
-                    {avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={avatarUrl} alt={displayName} className="h-full w-full" />
-                    ) : (
-                      displayName.slice(0, 2).toUpperCase()
-                    )}
-                  </span>
-                  <span className="hidden text-left text-xs md:block">
-                    <span className="block text-slate-300">Signed in as</span>
-                    <span className="block text-slate-100">{displayName}</span>
-                  </span>
-                </button>
-                {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-white/10 bg-slate-950/95 p-2 text-sm text-slate-200 shadow-[0_20px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl">
-                    <Link
-                      href="/dashboard"
-                      className={`block rounded-xl px-3 py-2 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      href="/profile"
-                      className={`block rounded-xl px-3 py-2 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
-                    >
-                      Profile
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await fetch('/logout', { method: 'POST' })
-                        router.push('/')
-                        router.refresh()
-                      }}
-                      className={`mt-1 w-full rounded-xl px-3 py-2 text-left transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className={`hidden cursor-pointer rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 md:inline-flex ${glowRing}`}
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className={`cursor-pointer rounded-full bg-cyan-400 px-5 py-2 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
-                >
-                  Get Started
-                </Link>
-              </>
-            )}
+          <div className="flex items-center gap-2 md:gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition-all duration-200 hover:border-cyan-300/40 md:hidden ${glowRing}`}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+            <div className="relative flex items-center gap-3">
+              {authLoading ? (
+                <div className="h-10 w-28 animate-pulse rounded-full border border-white/10 bg-white/10" />
+              ) : user ? (
+                <div ref={menuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen((prev) => !prev)}
+                    className={`flex min-h-11 items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 transition-all duration-200 hover:border-cyan-300/40 ${glowRing}`}
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-cyan-500/20 text-xs font-semibold text-cyan-100">
+                      {avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={avatarUrl} alt={displayName} className="h-full w-full" />
+                      ) : (
+                        displayName.slice(0, 2).toUpperCase()
+                      )}
+                    </span>
+                    <span className="hidden text-left text-xs md:block">
+                      <span className="block text-slate-300">Signed in as</span>
+                      <span className="block text-slate-100">{displayName}</span>
+                    </span>
+                  </button>
+                  {menuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-white/10 bg-slate-950/95 p-2 text-sm text-slate-200 shadow-[0_20px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+                      <Link
+                        href="/dashboard"
+                        className={`flex min-h-11 items-center rounded-xl px-3 py-2 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className={`flex min-h-11 items-center rounded-xl px-3 py-2 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await fetch('/logout', { method: 'POST' })
+                          router.push('/')
+                          router.refresh()
+                        }}
+                        className={`mt-1 flex min-h-11 w-full items-center rounded-xl px-3 py-2 text-left transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className={`hidden cursor-pointer rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 md:inline-flex ${glowRing}`}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className={`cursor-pointer rounded-full bg-cyan-400 px-5 py-2 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </motion.header>
 
+        <AnimatePresence>
+          {mobileMenuOpen ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-20 right-4 left-4 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <p className="text-xs tracking-[0.3em] text-cyan-200 uppercase">Navigate</p>
+                <div className="mt-4 flex flex-col gap-2 text-sm text-slate-200">
+                  <Link
+                    href="/registry"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex min-h-11 items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                  >
+                    Registry
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex min-h-11 items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                  >
+                    Dashboard
+                  </Link>
+                  <a
+                    href="https://github.com/SvenSonnborn/mcp-hub"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex min-h-11 items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                  >
+                    GitHub
+                  </a>
+                  {user ? (
+                    <>
+                      <Link
+                        href="/profile"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex min-h-11 items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await fetch('/logout', { method: 'POST' })
+                          setMobileMenuOpen(false)
+                          router.push('/')
+                          router.refresh()
+                        }}
+                        className={`flex min-h-11 items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left transition-colors duration-200 hover:bg-white/10 ${glowRing}`}
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <div className="mt-2 flex flex-col gap-2">
+                      <Link
+                        href="/login"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex min-h-11 items-center justify-center rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 ${glowRing}`}
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/register"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex min-h-11 items-center justify-center rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
+                      >
+                        Get Started
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
         <motion.section
           variants={section}
-          className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 pt-24 pb-20"
+          className="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 pt-20 pb-16 sm:px-6 sm:pt-24 sm:pb-20"
         >
           <motion.div
             variants={heroGroup}
@@ -306,7 +427,7 @@ export default function Home() {
             </motion.h1>
             <motion.p
               variants={heroItem}
-              className="will-change-opacity mt-6 text-lg text-slate-300 will-change-transform md:text-xl"
+              className="will-change-opacity mt-6 text-base text-slate-300 will-change-transform sm:text-lg md:text-xl"
             >
               Your gateway to the Model Context Protocol ecosystem. Browse curated servers,
               one-click install, and manage your AI infrastructure from a unified dashboard.
@@ -317,13 +438,13 @@ export default function Home() {
             >
               <Link
                 href="/registry"
-                className={`cursor-pointer rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
+                className={`flex min-h-11 w-full items-center justify-center rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 sm:w-auto ${glowRing}`}
               >
                 Browse Registry
               </Link>
               <Link
                 href="/dashboard"
-                className={`cursor-pointer rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 ${glowRing}`}
+                className={`flex min-h-11 w-full items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 sm:w-auto ${glowRing}`}
               >
                 Open Dashboard
               </Link>
@@ -332,7 +453,7 @@ export default function Home() {
 
           <motion.div
             variants={statsGroup}
-            className="will-change-opacity grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-2xl will-change-transform sm:grid-cols-3 sm:p-8"
+            className="will-change-opacity grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-2xl will-change-transform sm:grid-cols-3 sm:p-8"
           >
             {[
               {
@@ -357,7 +478,7 @@ export default function Home() {
               <motion.div
                 key={stat.label}
                 variants={cardItem}
-                className="will-change-opacity flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 will-change-transform"
+                className="will-change-opacity flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 will-change-transform sm:p-5"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/5">
                   <stat.icon className={`h-6 w-6 ${stat.accent}`} />
@@ -406,7 +527,7 @@ export default function Home() {
               <motion.div
                 key={feature.title}
                 variants={cardItem}
-                className={`will-change-opacity cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl will-change-transform ${hoverLift} ${glowRing}`}
+                className={`will-change-opacity cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl will-change-transform sm:p-6 ${hoverLift} ${glowRing}`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-200">
                   <feature.icon className="h-6 w-6" />
@@ -449,7 +570,7 @@ export default function Home() {
                   <motion.div
                     key={server.id}
                     variants={cardItem}
-                    className={`will-change-opacity cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl transition-all duration-200 will-change-transform hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-white/10 ${glowRing}`}
+                    className={`will-change-opacity cursor-pointer rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl transition-all duration-200 will-change-transform hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-white/10 sm:p-5 ${glowRing}`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
@@ -502,7 +623,7 @@ export default function Home() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/registry"
-                className={`cursor-pointer rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 ${glowRing}`}
+                className={`flex min-h-11 w-full items-center justify-center rounded-full bg-cyan-400 px-6 py-3 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-300 sm:w-auto ${glowRing}`}
               >
                 Explore Servers
               </Link>
@@ -510,7 +631,7 @@ export default function Home() {
                 href="https://github.com/SvenSonnborn/mcp-hub"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`cursor-pointer rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 ${glowRing}`}
+                className={`flex min-h-11 w-full items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-cyan-200 hover:text-cyan-100 sm:w-auto ${glowRing}`}
               >
                 View on GitHub
               </a>

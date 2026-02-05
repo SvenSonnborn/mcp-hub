@@ -1,0 +1,176 @@
+# Mobile Responsiveness Implementation - MCP Hub
+
+## Objective
+Improve mobile responsiveness across the MCP Hub application with a focus on:
+1. Landing Page mobile menu and layout
+2. Dashboard Cards mobile optimization  
+3. Server Grid already responsive, minor tweaks if needed
+
+## Files to Modify
+
+### 1. app/page.tsx - Landing Page
+**Issues identified:**
+- Navigation is hidden on mobile (`hidden md:flex`) but NO mobile menu exists
+- Hero section needs mobile padding adjustments
+- Header user menu needs mobile optimization
+- Stats section uses `sm:grid-cols-3` (good but verify mobile stacking)
+- Some text sizes may need adjustment for small screens
+
+**Required Changes:**
+1. **Add Mobile Hamburger Menu:**
+   - Add hamburger button visible only on mobile (`md:hidden`)
+   - Create slide-out or dropdown mobile menu
+   - Include links: Registry, Dashboard, GitHub, Login/Register/Get Started
+   - Close menu when clicking outside or on link
+
+2. **Header User Menu Mobile:**
+   - The user dropdown menu should work properly on mobile
+   - Ensure touch-friendly tap targets (min 44px)
+
+3. **Hero Section:**
+   - Current: `text-4xl md:text-6xl lg:text-7xl` (keep)
+   - Current: `px-6` (verify if enough on small screens)
+   - Ensure buttons stack properly on very small screens
+
+4. **Stats Section:**
+   - Uses `sm:grid-cols-3` - ensure it stacks to 1 column below sm breakpoint
+   - Add proper spacing between cards on mobile
+
+5. **Features Section:**
+   - Uses `md:grid-cols-3` - ensure 1 column below md
+   - Verify card padding on mobile
+
+6. **Popular Servers Section:**
+   - Uses `sm:grid-cols-2 lg:grid-cols-3` - good
+   - Ensure cards are touch-friendly
+
+### 2. components/dashboard/InstalledCard.tsx
+**Issues identified:**
+- Action buttons (Start, Stop, Restart, Settings, Logs) are in a flex row
+- On mobile, these should wrap or be reorganized
+- Touch targets should be minimum 44px
+
+**Required Changes:**
+1. **Action Buttons Layout:**
+   - Current: `flex items-center gap-2`
+   - Change to: `flex flex-wrap items-center gap-2` or use grid
+   - Ensure buttons don't overflow on small screens (< 400px)
+   - Consider grouping primary actions (Start/Stop) and secondary (Settings/Logs)
+
+2. **Touch Targets:**
+   - Ensure all icon buttons have min 44px touch area
+   - Add proper aria-labels (already present, verify)
+
+3. **Card Layout:**
+   - Title and status should stack well on mobile
+   - Logs section should be scrollable horizontally if needed
+
+### 3. components/dashboard/StatsRow.tsx
+**Verify and improve if needed:**
+- Check how stats cards display on mobile
+- Ensure they stack or scroll properly
+
+### 4. app/components/server-grid.tsx  
+**Minor tweaks if needed:**
+- Already has `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` (good)
+- Verify search/filter section stacks properly on mobile
+- Ensure filter badges wrap correctly (`flex-wrap`)
+
+## Design Guidelines
+
+### Mobile-First Approach
+- Default styles for mobile, use `md:` and `lg:` for larger screens
+- Touch targets minimum 44x44px
+- Readable font sizes (min 14px/0.875rem for body)
+- Adequate spacing (min 16px/1rem between interactive elements)
+
+### Breakpoints to Use
+```
+sm: 640px   - Small tablets, large phones
+md: 768px   - Tablets
+lg: 1024px  - Small laptops
+xl: 1280px  - Desktops
+```
+
+### Tailwind Classes Reference
+- Responsive: `md:hidden`, `hidden md:block`, `sm:grid-cols-2`
+- Touch targets: `min-h-11 min-w-11` (44px)
+- Spacing: `gap-4`, `p-4`, `px-4 py-3`
+- Text: `text-sm md:text-base`, `text-2xl md:text-3xl`
+
+## Testing Checklist (Verify These Work)
+
+### Landing Page
+- [ ] Mobile menu opens/closes correctly
+- [ ] Menu links work and close menu on click
+- [ ] User menu (when logged in) works on mobile
+- [ ] Hero text readable on 375px width
+- [ ] Stats stack vertically on mobile
+- [ ] Feature cards stack vertically on mobile
+- [ ] Server cards show 1 per row on mobile, 2 on tablet
+- [ ] CTA section buttons stack on mobile
+- [ ] Footer stacks vertically on mobile
+
+### Dashboard
+- [ ] StatsRow readable on mobile
+- [ ] InstalledCards stack vertically (1 column on mobile, 2 on lg)
+- [ ] Action buttons don't overflow card on 375px width
+- [ ] Logs section scrollable if content overflows
+- [ ] Touch targets easy to tap
+
+### Registry/Server Grid
+- [ ] Search bar usable on mobile
+- [ ] Filter badges wrap to multiple lines
+- [ ] Server cards display properly
+- [ ] Submit Server button accessible
+
+## Implementation Notes
+
+1. **Mobile Menu Animation:**
+   - Use Framer Motion (already in project) for smooth slide-in
+   - Or simple CSS transition with transform
+   - Backdrop blur for overlay
+
+2. **Icon Button Accessibility:**
+   - All icon buttons must have aria-label
+   - Consider adding text labels on mobile if space permits
+
+3. **Performance:**
+   - Use `will-change-transform` sparingly
+   - Prefer CSS transitions over JS animations where possible
+
+4. **Existing Patterns to Follow:**
+   - Use existing color scheme (slate-950 bg, cyan-400 accents)
+   - Follow existing border styles (border-white/10, rounded-2xl)
+   - Use backdrop-blur for glass effects
+   - Keep hover effects for desktop, remove/adapt for touch
+
+## File Structure
+```
+app/
+  page.tsx                          # Landing page - ADD mobile menu
+  (dashboard)/
+    layout.tsx                      # Dashboard layout
+components/
+  dashboard/
+    InstalledCard.tsx              # FIX button layout on mobile
+    StatsRow.tsx                   # VERIFY mobile display
+  layout/
+    DashboardShell.tsx             # CHECK sidebar mobile behavior
+```
+
+## Current Dependencies (don't add new ones)
+- framer-motion (for animations)
+- lucide-react (for icons)
+- @radix-ui/react-* (for accessible components)
+- tailwindcss (for styling)
+
+## Output
+Make ALL necessary changes to the files listed above. Ensure:
+1. All mobile menus work correctly
+2. All cards and grids are responsive
+3. Touch targets are adequate
+4. No layout breaks on 375px width
+5. Tests pass after changes (`npm run test:ci`)
+6. TypeScript compiles without errors (`npm run type-check`)
+7. Format code (`npm run format`)
