@@ -72,11 +72,74 @@ jobs:
           path: coverage/
           retention-days: 30
 
-      - name: Check coverage report exists
+      - name: Parse coverage report
+        id: coverage
         run: |
-          if [ ! -d coverage/ ]; then
-            echo "❌ Coverage directory not found"
-            exit 1
-          fi
-          echo "✅ Coverage report generated"
-          ls -la coverage/
+          # Create a Node.js script to parse coverage
+          node -e "
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('coverage/coverage-final.json', 'utf8'));
+
+          // Calculate totals from all files
+          let totalLines = { total: 0, covered: 0 };
+          let totalStatements = { total: 0, covered: 0 };
+          let totalFunctions = { total: 0, covered: 0 };
+          let totalBranches = { total: 0, covered: 0 };
+
+          for (const file of Object.values(data)) {
+            if (file.lines) {
+              totalLines.total += file.lines.total;
+              totalLines.covered += file.lines.covered;
+            }
+            if (file.statements) {
+              totalStatements.total += file.statements.total;
+              totalStatements.covered += file.statements.covered;
+            }
+            if (file.functions) {
+              totalFunctions.total += file.functions.total;
+              totalFunctions.covered += file.functions.covered;
+            }
+            if (file.branches) {
+              totalBranches.total += file.branches.total;
+              totalBranches.covered += file.branches.covered;
+            }
+          }
+
+          const pct = (covered, total) => total === 0 ? 0 : ((covered / total) * 100).toFixed(2);
+
+          console.log('lines=' + pct(totalLines.covered, totalLines.total));
+          console.log('statements=' + pct(totalStatements.covered, totalStatements.total));
+          console.log('functions=' + pct(totalFunctions.covered, totalFunctions.total));
+          console.log('branches=' + pct(totalBranches.covered, totalBranches.total));
+          " | while read line; do
+            echo "$line" >> $GITHUB_OUTPUT
+          done
+
+      - name: Post coverage comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const lines = '${{ steps.coverage.outputs.lines }}';
+            const statements = '${{ steps.coverage.outputs.statements }}';
+            const functions = '${{ steps.coverage.outputs.functions }}';
+            const branches = '${{ steps.coverage.outputs.branches }}';
+
+            const body = `## 🧪 Test Coverage Report
+
+            | Metric | Coverage |
+            |--------|----------|
+            | Lines | ${lines}% |
+            | Statements | ${statements}% |
+            | Functions | ${functions}% |
+            | Branches | ${branches}% |
+
+            > Threshold: 50% (will be increased as more tests are added)
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
