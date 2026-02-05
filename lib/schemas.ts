@@ -15,6 +15,8 @@ export const ServerTagSchema = z.enum([
   'ai',
   'tools',
   'cloud',
+  'remote',
+  'local',
 ])
 
 export const ServerSchema = z.object({
@@ -25,6 +27,8 @@ export const ServerSchema = z.object({
   authorUrl: z.string().url().optional(),
   tags: z.array(ServerTagSchema),
   githubUrl: z.string().url(),
+  type: z.enum(['local', 'remote']),
+  remoteUrl: z.string().url().optional(),
   npmPackage: z.string().optional(),
   downloads: z.string(),
   version: z.string().default('1.0.0'),
