@@ -25,6 +25,9 @@ model MCPServer {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  type      String  @default("local")
+  remoteUrl String?
+
   // Relations
   installations MCPInstallation[]
 }

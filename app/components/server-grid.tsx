@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { InstallActions } from '@/components/registry/InstallActions'
+import { AddToConfigActions } from '@/components/registry/AddToConfigActions'
 import type { Server, ServerTag } from '@/lib/schemas'
 
 const TAG_COLORS: Record<ServerTag | string, string> = {
@@ -25,6 +26,8 @@ const TAG_COLORS: Record<ServerTag | string, string> = {
   ai: 'bg-cyan-500/15 text-cyan-200 border-cyan-500/40',
   tools: 'bg-slate-500/15 text-slate-200 border-slate-500/30',
   cloud: 'bg-sky-500/15 text-sky-200 border-sky-500/40',
+  remote: 'bg-cyan-500/15 text-cyan-200 border-cyan-500/40',
+  local: 'bg-slate-500/15 text-slate-200 border-slate-500/30',
 }
 
 function ServerCard({ server }: { server: Server }) {
@@ -75,7 +78,17 @@ function ServerCard({ server }: { server: Server }) {
               <Link href={`/servers/${server.id}`}>View Details</Link>
             </Button>
           </div>
-          <InstallActions serverId={server.id} size="sm" className="w-full" />
+          {server.type === 'remote' ? (
+            <AddToConfigActions
+              serverId={server.id}
+              serverName={server.name}
+              remoteUrl={server.remoteUrl || ''}
+              size="sm"
+              className="w-full"
+            />
+          ) : (
+            <InstallActions serverId={server.id} size="sm" className="w-full" />
+          )}
         </div>
       </CardContent>
     </Card>

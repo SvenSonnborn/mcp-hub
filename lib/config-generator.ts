@@ -24,6 +24,18 @@ const toSafeName = (name: string) =>
 
 const toServerEntry = (installation: InstallationWithServer): ServerEntry => {
   const config = (installation.config ?? {}) as Record<string, unknown>
+
+  if (config.type === 'remote' && config.url) {
+    return {
+      name: toSafeName(installation.server.name),
+      command: '',
+      args: [],
+      env: {},
+      transport: 'http',
+      url: config.url as string,
+    }
+  }
+
   const command = typeof config.command === 'string' ? config.command : FALLBACK_COMMAND
   const args = Array.isArray(config.args)
     ? config.args.filter((arg) => typeof arg === 'string')
@@ -37,49 +49,36 @@ const toServerEntry = (installation: InstallationWithServer): ServerEntry => {
         )
       : {}
 
-  const transport =
-    config.transport === 'http' || config.transport === 'stdio' ? config.transport : 'stdio'
-  const url = typeof config.url === 'string' ? config.url : installation.server.installUrl
-
   return {
     name: toSafeName(installation.server.name),
     command,
     args,
     env,
-    transport,
-    url,
+    transport: 'stdio',
+    url: installation.server.installUrl,
   }
 }
 
 export function generateConfig(tool: string, installations: InstallationWithServer[]) {
   const servers = installations.map(toServerEntry)
   const normalized = normalizeTool(tool)
+  const toServerConfig = (server: ServerEntry) =>
+    server.transport === 'http'
+      ? { url: server.url }
+      : { command: server.command, args: server.args, env: server.env }
 
   switch (normalized) {
     case 'claude':
       return {
         mcpServers: Object.fromEntries(
-          servers.map((server) => [
-            server.name,
-            {
-              command: server.command,
-              args: server.args,
-              env: server.env,
-              transport: server.transport,
-              url: server.url,
-            },
-          ])
+          servers.map((server) => [server.name, toServerConfig(server)])
         ),
       }
     case 'cursor':
       return {
         mcpServers: servers.map((server) => ({
           name: server.name,
-          command: server.command,
-          args: server.args,
-          env: server.env,
-          transport: server.transport,
-          url: server.url,
+          ...toServerConfig(server),
         })),
       }
     case 'windsurf':
@@ -87,11 +86,7 @@ export function generateConfig(tool: string, installations: InstallationWithServ
         mcp: {
           servers: servers.map((server) => ({
             id: server.name,
-            command: server.command,
-            args: server.args,
-            env: server.env,
-            transport: server.transport,
-            url: server.url,
+            ...toServerConfig(server),
             enabled: true,
           })),
         },
@@ -102,11 +97,7 @@ export function generateConfig(tool: string, installations: InstallationWithServ
         version: 1,
         servers: servers.map((server) => ({
           name: server.name,
-          command: server.command,
-          args: server.args,
-          env: server.env,
-          transport: server.transport,
-          url: server.url,
+          ...toServerConfig(server),
         })),
       }
   }

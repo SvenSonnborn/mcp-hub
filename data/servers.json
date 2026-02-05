@@ -10,6 +10,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "filesystem"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-filesystem",
       "downloads": "50k+",
       "version": "1.0.0",
@@ -29,6 +30,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "github", "api"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-github",
       "downloads": "45k+",
       "version": "1.0.0",
@@ -48,6 +50,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "database", "postgres"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-postgres",
       "downloads": "30k+",
       "version": "1.0.0",
@@ -66,6 +69,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "search", "web"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-brave-search",
       "downloads": "25k+",
       "version": "1.0.0",
@@ -83,6 +87,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "browser", "automation"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-puppeteer",
       "downloads": "20k+",
       "version": "1.0.0",
@@ -102,6 +107,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "database", "sqlite"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-sqlite",
       "downloads": "18k+",
       "version": "1.0.0",
@@ -120,6 +126,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "api", "web"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-fetch",
       "downloads": "15k+",
       "version": "1.0.0",
@@ -134,6 +141,7 @@
       "authorUrl": "https://anthropic.com",
       "tags": ["official", "tools"],
       "githubUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/git",
+      "type": "local",
       "npmPackage": "@modelcontextprotocol/server-git",
       "downloads": "12k+",
       "version": "1.0.0",
@@ -142,6 +150,24 @@
         { "name": "git_log", "description": "Get commit history" },
         { "name": "git_status", "description": "Check repository status" },
         { "name": "git_diff", "description": "Show differences between commits" }
+      ]
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase MCP",
+      "description": "Connect to Supabase databases with comprehensive database operations and management capabilities.",
+      "author": "supabase",
+      "authorUrl": "https://supabase.com",
+      "tags": ["database", "remote"],
+      "githubUrl": "https://github.com/supabase/supabase",
+      "remoteUrl": "https://mcp.supabase.com/mcp",
+      "type": "remote",
+      "downloads": "100k+",
+      "version": "1.0.0",
+      "license": "MIT",
+      "tools": [
+        { "name": "query", "description": "Execute SQL queries" },
+        { "name": "get_tables", "description": "List all tables" }
       ]
     }
   ]
