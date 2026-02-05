@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { ServerStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { startLifecycleSimulation } from '@/lib/lifecycle-simulator'
 
 export const dynamic = 'force-dynamic'
 
@@ -103,6 +104,8 @@ export async function POST(request: Request) {
       },
     },
   })
+
+  startLifecycleSimulation(created.id)
 
   return NextResponse.json({
     alreadyInstalled: false,
