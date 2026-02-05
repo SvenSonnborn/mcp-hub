@@ -10,6 +10,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   lint-and-typecheck:
     runs-on: ubuntu-latest
@@ -45,6 +50,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Run Tests
     needs: lint-and-typecheck
+    permissions:
+      contents: read
+      pull-requests: write
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -75,12 +83,10 @@ jobs:
       - name: Parse coverage report
         id: coverage
         run: |
-          # Create a Node.js script to parse coverage
-          node -e "
+          node << 'EOF'
           const fs = require('fs');
           const data = JSON.parse(fs.readFileSync('coverage/coverage-final.json', 'utf8'));
 
-          // Calculate totals from all files
           let totalLines = { total: 0, covered: 0 };
           let totalStatements = { total: 0, covered: 0 };
           let totalFunctions = { total: 0, covered: 0 };
@@ -107,13 +113,24 @@ jobs:
 
           const pct = (covered, total) => total === 0 ? 0 : ((covered / total) * 100).toFixed(2);
 
-          console.log('lines=' + pct(totalLines.covered, totalLines.total));
-          console.log('statements=' + pct(totalStatements.covered, totalStatements.total));
-          console.log('functions=' + pct(totalFunctions.covered, totalFunctions.total));
-          console.log('branches=' + pct(totalBranches.covered, totalBranches.total));
-          " | while read line; do
-            echo "$line" >> $GITHUB_OUTPUT
-          done
+          const lines = pct(totalLines.covered, totalLines.total);
+          const statements = pct(totalStatements.covered, totalStatements.total);
+          const functions = pct(totalFunctions.covered, totalFunctions.total);
+          const branches = pct(totalBranches.covered, totalBranches.total);
+
+          console.log(`Lines: ${lines}%`);
+          console.log(`Statements: ${statements}%`);
+          console.log(`Functions: ${functions}%`);
+          console.log(`Branches: ${branches}%`);
+
+          // Write to GITHUB_OUTPUT
+          const output = require('fs');
+          const outputFile = process.env.GITHUB_OUTPUT;
+          output.appendFileSync(outputFile, `lines=${lines}\n`);
+          output.appendFileSync(outputFile, `statements=${statements}\n`);
+          output.appendFileSync(outputFile, `functions=${functions}\n`);
+          output.appendFileSync(outputFile, `branches=${branches}\n`);
+          EOF
 
       - name: Post coverage comment
         if: github.event_name == 'pull_request'
