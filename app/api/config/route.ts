@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { generateConfig, normalizeTool, validateConfig } from '@/lib/config-generator'
 import { ServerStatus } from '@prisma/client'
+import { getServerById } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,12 +13,32 @@ export async function GET(request: Request) {
   const serverId = searchParams.get('serverId')
 
   if (serverId) {
-    const server = await prisma.mCPServer.findFirst({
+    // Try to find server in database first
+    let server = await prisma.mCPServer.findFirst({
       where: {
         OR: [{ id: serverId }, { name: serverId }],
       },
-      select: { id: true },
     })
+
+    // If not in DB, try to find in JSON data and create in DB
+    if (!server) {
+      const jsonServer = getServerById(serverId)
+      if (jsonServer) {
+        server = await prisma.mCPServer.create({
+          data: {
+            name: jsonServer.name,
+            description: jsonServer.description,
+            publisher: jsonServer.author,
+            githubUrl: jsonServer.githubUrl,
+            installUrl: jsonServer.npmPackage || '',
+            version: jsonServer.version,
+            category: 'OTHER',
+            tags: jsonServer.tags,
+            configSchema: jsonServer.configSchema || {},
+          },
+        })
+      }
+    }
 
     if (!server) {
       return NextResponse.json({ error: 'Server not found' }, { status: 404 })
