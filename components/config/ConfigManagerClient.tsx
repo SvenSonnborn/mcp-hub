@@ -7,6 +7,7 @@ import { ConfigPreview } from '@/components/config/ConfigPreview'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
+import type { ToolId } from '@/lib/config-generator'
 
 type ConfigResponse = {
   tool: string
@@ -174,6 +175,7 @@ export function ConfigManagerClient() {
             config={data?.config ?? {}}
             isValid={data?.valid ?? true}
             title={selectedOption?.label ?? 'Generated config'}
+            tool={selectedTool as ToolId}
           />
         )}
       </div>

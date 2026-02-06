@@ -36,7 +36,7 @@ export function AddToConfigActions({
       if (!response.ok) {
         throw new Error(payload?.error ?? 'Unable to add server')
       }
-      toast.success(`${serverName} added to your MCP config`)
+      toast.success(`${serverName} connected`)
       router.refresh()
     } catch (error) {
       toast.error('Failed to add server', {
@@ -50,7 +50,7 @@ export function AddToConfigActions({
   return (
     <Button size={size} className={className} onClick={handleAdd} disabled={isLoading}>
       {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-      {isLoading ? 'Adding...' : 'Add to Config'}
+      {isLoading ? 'Connecting...' : 'Connect Remote Server'}
     </Button>
   )
 }

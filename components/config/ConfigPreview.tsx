@@ -6,22 +6,27 @@ import { Check, CheckCircle2, Copy, Download, AlertTriangle } from 'lucide-react
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import type { ToolId } from '@/lib/config-generator'
 
 type ConfigPreviewProps = {
   config: Record<string, unknown>
   isValid: boolean
   title?: string
   filename?: string
+  tool?: ToolId
 }
 
 export function ConfigPreview({
   config,
   isValid,
   title = 'Generated config',
-  filename = 'mcp.json',
+  filename,
+  tool,
 }: ConfigPreviewProps) {
   const [copied, setCopied] = useState(false)
   const code = useMemo(() => JSON.stringify(config ?? {}, null, 2), [config])
+  const resolvedFilename =
+    filename ?? (tool === 'claude' ? 'claude_desktop_config.json' : 'mcp.json')
 
   const handleCopy = async () => {
     try {
@@ -41,7 +46,7 @@ export function ConfigPreview({
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = filename
+    link.download = resolvedFilename
     link.click()
     URL.revokeObjectURL(url)
   }
