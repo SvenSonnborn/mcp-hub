@@ -60,84 +60,103 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => ({}))
-  const serverId = typeof body?.serverId === 'string' ? body.serverId : null
-  const config =
-    body?.config && typeof body.config === 'object' && !Array.isArray(body.config)
-      ? (body.config as Record<string, unknown>)
-      : undefined
+  try {
+    const body = await request.json().catch(() => ({}))
+    const serverId = typeof body?.serverId === 'string' ? body.serverId : null
+    const config =
+      body?.config && typeof body.config === 'object' && !Array.isArray(body.config)
+        ? (body.config as Record<string, unknown>)
+        : undefined
 
-  if (!serverId) {
-    return NextResponse.json({ error: 'Missing serverId' }, { status: 400 })
-  }
+    if (!serverId) {
+      return NextResponse.json({ error: 'Missing serverId' }, { status: 400 })
+    }
 
-  // Try to find server in database first
-  let server = await prisma.mCPServer.findFirst({
-    where: {
-      OR: [{ id: serverId }, { name: serverId }],
-    },
-    select: { id: true, name: true, version: true },
-  })
+    // Try to find server in database first
+    let server = await prisma.mCPServer.findFirst({
+      where: {
+        OR: [{ id: serverId }, { name: serverId }],
+      },
+      select: { id: true, name: true, version: true },
+    })
 
-  // If not in DB, try to find in JSON data and create in DB
-  if (!server) {
-    const jsonServer = getServerById(serverId)
-    if (jsonServer) {
-      // Create server in database
-      server = await prisma.mCPServer.create({
-        data: {
-          name: jsonServer.name,
-          description: jsonServer.description,
-          publisher: jsonServer.author,
-          githubUrl: jsonServer.githubUrl,
-          installUrl: jsonServer.npmPackage || '',
-          version: jsonServer.version,
-          category: 'OTHER',
-          tags: jsonServer.tags,
-          configSchema: jsonServer.configSchema || {},
-        },
-        select: { id: true, name: true, version: true },
+    // If not in DB, try to find in JSON data and create in DB
+    if (!server) {
+      const jsonServer = getServerById(serverId)
+      if (jsonServer) {
+        // Create server in database
+        try {
+          server = await prisma.mCPServer.create({
+            data: {
+              name: jsonServer.name,
+              description: jsonServer.description,
+              publisher: jsonServer.author,
+              githubUrl: jsonServer.githubUrl,
+              installUrl: jsonServer.npmPackage || '',
+              version: jsonServer.version,
+              category: 'OTHER',
+              tags: jsonServer.tags || [],
+              configSchema: jsonServer.configSchema || {},
+            },
+            select: { id: true, name: true, version: true },
+          })
+        } catch (createError) {
+          console.error('Failed to create server:', createError)
+          return NextResponse.json(
+            { error: 'Failed to create server in database' },
+            { status: 500 }
+          )
+        }
+      }
+    }
+
+    if (!server) {
+      return NextResponse.json({ error: 'Server not found' }, { status: 404 })
+    }
+
+    const existing = await prisma.mCPInstallation.findFirst({
+      where: { serverId: server.id },
+      include: { server: true },
+    })
+
+    if (existing) {
+      return NextResponse.json({
+        alreadyInstalled: true,
+        installation: formatInstallation(existing),
       })
     }
-  }
 
-  if (!server) {
-    return NextResponse.json({ error: 'Server not found' }, { status: 404 })
-  }
-
-  const existing = await prisma.mCPInstallation.findFirst({
-    where: { serverId: server.id },
-    include: { server: true },
-  })
-
-  if (existing) {
-    return NextResponse.json({
-      alreadyInstalled: true,
-      installation: formatInstallation(existing),
-    })
-  }
-
-  const created = await prisma.mCPInstallation.create({
-    data: {
-      serverId: server.id,
-      status: ServerStatus.PENDING,
-      config: config ? { ...config, type: 'local' } : { type: 'local' },
-    },
-    include: {
-      server: {
-        select: {
-          id: true,
-          name: true,
-          version: true,
+    const created = await prisma.mCPInstallation.create({
+      data: {
+        serverId: server.id,
+        status: ServerStatus.PENDING,
+        config: config ? { ...config, type: 'local' } : { type: 'local' },
+      },
+      include: {
+        server: {
+          select: {
+            id: true,
+            name: true,
+            version: true,
+          },
         },
       },
-    },
-  })
+    })
 
-  startLifecycleSimulation(created.id)
+    startLifecycleSimulation(created.id)
 
-  return NextResponse.json({
-    alreadyInstalled: false,
-    installation: formatInstallation(created),
-  })
+    return NextResponse.json({
+      alreadyInstalled: false,
+      installation: formatInstallation(created),
+    })
+  } catch (error) {
+    console.error('Installation error:', error)
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
+  }
 }
