@@ -1,0 +1,100 @@
+# MCP Hub: Minimalist Success View (Option C)
+
+## Goal
+Fix the dialog overflow issue and create a cleaner success view without the large ConfigPreview.
+
+## Current Problem
+The success view with ConfigPreview is too large and gets hidden behind the next card. The "Done" button becomes unreachable.
+
+## Desired Changes (Option C)
+
+### New Success View Design:
+```
+┌─────────────────────────────────────────┐
+│  Configure Filesystem MCP           [X] │
+├─────────────────────────────────────────┤
+│                                         │
+│  ✅ Configuration saved!                │
+│                                         │
+│  Default tool is Claude.                │
+│  Weitere Einstellungen im Config tab.   │
+│                                         │
+│        [Copy Config]  [Done]            │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+### Specific Changes to InstallConfigDialog.tsx:
+
+1. **Remove ConfigPreview from success view completely**
+   - Don't import or use ConfigPreview component
+
+2. **Add direct copy functionality**
+   - Add state: `const [copied, setCopied] = useState(false)`
+   - Create `handleCopyConfig` function that:
+     - Uses `navigator.clipboard.writeText()` to copy the JSON
+     - Sets copied state to true
+     - Shows toast: "Config copied to clipboard"
+     - Resets after 2 seconds
+
+3. **Update success view layout:**
+   ```tsx
+   // Success view should be:
+   <div className="mt-6 space-y-4">
+     <p className="font-semibold text-emerald-200">Configuration saved!</p>
+     <p className="text-sm text-slate-200">
+       Default tool is Claude.<br />
+       Weitere Einstellungen im Config tab.
+     </p>
+     
+     <div className="flex gap-3 justify-end mt-8">
+       <Button
+         type="button"
+         variant="outline"
+         onClick={handleCopyConfig}
+         disabled={copied}
+       >
+         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+         {copied ? 'Copied!' : 'Copy Config'}
+       </Button>
+       <Button type="button" onClick={handleDone}>
+         Done
+       </Button>
+     </div>
+   </div>
+   ```
+
+4. **JSON Generation for Copy:**
+   - The config JSON is already in `configData.config`
+   - Stringify: `JSON.stringify(configData.config, null, 2)`
+   - Copy this to clipboard
+
+5. **Update Done button behavior:**
+   - Create `handleDone` function that:
+     - Calls `onClose()`
+     - Calls `router.refresh()`
+
+6. **Imports needed:**
+   - Add `Copy, Check` from 'lucide-react' if not already imported
+   - Keep existing imports
+
+7. **Remove unused:**
+   - Remove ConfigPreview import
+   - Remove `defaultTool` const if not needed elsewhere
+   - Clean up any unused variables
+
+## Acceptance Criteria
+- [ ] Success view fits in dialog without overflow
+- [ ] "Copy Config" button copies the JSON config
+- [ ] Button shows "Copied!" briefly after click
+- [ ] Toast notification on successful copy
+- [ ] "Done" button closes dialog and refreshes
+- [ ] No ConfigPreview component in success view
+- [ ] Dialog doesn't overflow or hide behind other cards
+- [ ] All tests still pass
+- [ ] TypeScript compiles without errors
+
+## Test Commands to Run
+npm run type-check
+npm run test:ci
+npm run format
