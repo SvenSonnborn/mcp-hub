@@ -4,6 +4,7 @@ import { Space_Grotesk } from 'next/font/google'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { InstallActions } from '@/components/registry/InstallActions'
+import { AddToConfigActions } from '@/components/registry/AddToConfigActions'
 import { StatusPoller } from '@/components/registry/StatusPoller'
 import { UninstallButton } from '@/components/registry/UninstallButton'
 import { ServerConfigEditor } from '@/components/registry/ServerConfigEditor'
@@ -146,8 +147,32 @@ export default async function ServerPage({ params }: { params: { id: string } })
                         <UninstallButton installationId={installation.id} />
                       </div>
                     </div>
+                  ) : server.type === 'remote' ? (
+                    <AddToConfigActions
+                      serverId={server.id}
+                      serverName={server.name}
+                      remoteUrl={server.remoteUrl || ''}
+                    />
                   ) : (
-                    <InstallActions serverId={server.id} server={server} />
+                    <div className="flex flex-col gap-2">
+                      <InstallActions serverId={server.id} server={server} tool="claude" />
+                      <div className="flex flex-wrap gap-2">
+                        <InstallActions
+                          serverId={server.id}
+                          server={server}
+                          tool="cursor"
+                          variant="secondary"
+                          className="flex-1"
+                        />
+                        <InstallActions
+                          serverId={server.id}
+                          server={server}
+                          tool="windsurf"
+                          variant="secondary"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
                   )}
                   {installation ? (
                     <div>
@@ -158,9 +183,14 @@ export default async function ServerPage({ params }: { params: { id: string } })
                     </div>
                   ) : null}
                   {installation ? (
-                    <Button variant="secondary" asChild>
-                      <a href="#config">Edit configuration</a>
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="secondary" asChild className="flex-1">
+                        <a href="/config">View Config</a>
+                      </Button>
+                      <Button variant="secondary" asChild className="flex-1">
+                        <a href="#config">Edit configuration</a>
+                      </Button>
+                    </div>
                   ) : (
                     <Button variant="secondary" asChild>
                       <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">

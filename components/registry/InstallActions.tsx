@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Loader2, Download } from 'lucide-react'
-import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { Download } from 'lucide-react'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { InstallConfigDialog } from '@/components/registry/InstallConfigDialog'
 import type { Server } from '@/lib/schemas'
+import type { ToolId } from '@/lib/config-generator'
 
 type InstallActionsProps = {
   serverId: string
@@ -14,6 +13,15 @@ type InstallActionsProps = {
   className?: string
   size?: 'default' | 'sm' | 'lg' | 'icon'
   onInstalled?: (installationId: string) => void
+  tool?: ToolId
+  variant?: ButtonProps['variant']
+}
+
+const TOOL_LABELS: Record<ToolId, string> = {
+  claude: 'Claude Desktop',
+  cursor: 'Cursor',
+  windsurf: 'Windsurf',
+  generic: 'MCP',
 }
 
 export function InstallActions({
@@ -22,42 +30,11 @@ export function InstallActions({
   className,
   size,
   onInstalled,
+  tool = 'claude',
+  variant,
 }: InstallActionsProps) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  const handleInstall = async (config?: Record<string, unknown>) => {
-    if (!serverId) {
-      toast.error('Missing server ID')
-      return
-    }
-    setIsLoading(true)
-    try {
-      const response = await fetch('/api/installations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ serverId, config }),
-      })
-      const payload = await response.json().catch(() => ({}))
-      if (!response.ok) {
-        throw new Error(payload?.error ?? 'Unable to install server')
-      }
-      toast.success(payload?.alreadyInstalled ? 'Server already installed' : 'Installation started')
-      if (payload?.installation?.id) {
-        onInstalled?.(payload.installation.id)
-      }
-      router.refresh()
-    } catch (error) {
-      toast.error('Installation failed', {
-        description: error instanceof Error ? error.message : 'Please try again.',
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const toolLabel = TOOL_LABELS[tool] ?? 'Claude Desktop'
 
   return (
     <>
@@ -65,30 +42,20 @@ export function InstallActions({
         size={size}
         className={className}
         onClick={() => {
-          if (server?.configSchema) {
-            setIsDialogOpen(true)
-            return
-          }
-          handleInstall()
+          setIsDialogOpen(true)
         }}
-        disabled={isLoading}
+        variant={variant}
       >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Download className="h-4 w-4" />
-        )}
-        {isLoading ? 'Installing...' : 'Install Server'}
+        <Download className="h-4 w-4" />
+        Add to {toolLabel}
       </Button>
-      {server?.configSchema ? (
+      {server ? (
         <InstallConfigDialog
           server={server}
+          defaultTool={tool}
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
-          onConfirm={(config) => {
-            setIsDialogOpen(false)
-            handleInstall(config)
-          }}
+          onInstalled={onInstalled}
         />
       ) : null}
     </>
