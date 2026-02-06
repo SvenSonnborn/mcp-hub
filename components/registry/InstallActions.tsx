@@ -17,13 +17,6 @@ type InstallActionsProps = {
   variant?: ButtonProps['variant']
 }
 
-const TOOL_LABELS: Record<ToolId, string> = {
-  claude: 'Claude Desktop',
-  cursor: 'Cursor',
-  windsurf: 'Windsurf',
-  generic: 'MCP',
-}
-
 export function InstallActions({
   serverId,
   server,
@@ -34,8 +27,6 @@ export function InstallActions({
   variant,
 }: InstallActionsProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const toolLabel = TOOL_LABELS[tool] ?? 'Claude Desktop'
-
   return (
     <>
       <Button
@@ -47,12 +38,11 @@ export function InstallActions({
         variant={variant}
       >
         <Download className="h-4 w-4" />
-        Add to {toolLabel}
+        Configure Server
       </Button>
       {server ? (
         <InstallConfigDialog
           server={server}
-          defaultTool={tool}
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
           onInstalled={onInstalled}

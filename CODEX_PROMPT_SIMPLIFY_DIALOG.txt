@@ -1,0 +1,110 @@
+# MCP Hub: Simplify InstallConfigDialog UX (Option B)
+
+## Goal
+Simplify the InstallConfigDialog to remove confusing tool selection and streamline the success flow.
+
+## Current Problems
+1. Dialog shows tool tabs (Claude/Cursor/Windsurf) at top - confusing because tool selection should happen in Config tab
+2. Success view is too large with too much text
+3. Button says "Add to Claude Desktop" but we're just saving to registry
+4. After "Generate Config", the preview shows tool tabs again
+
+## Desired Changes
+
+### 1. InstallActions.tsx - Button Labels
+Change button text from "Add to Claude Desktop" to "Configure Server"
+Keep the variant/tool props for styling, but label should be generic.
+
+### 2. InstallConfigDialog.tsx - Major Simplification
+
+#### Remove from Dialog Header:
+- Remove tool selection tabs (Claude/Cursor/Windsurf buttons)
+- Keep dialog title simple: "Configure {server.name}"
+
+#### Step 1: Configuration Form (keep mostly as is)
+- Title: "Configure {server.name}"
+- Show config form (paths, tokens, etc.)
+- Button: "Save Configuration" (instead of "Generate Config")
+
+#### Step 2: Success View (MAJOR SIMPLIFICATION)
+Current success view has:
+- Tool tabs
+- "Config generated!" 
+- File path info
+- Large ConfigPreview
+- Back/Done buttons
+
+NEW success view should be minimal:
+```
+┌─────────────────────────────────────────┐
+│  Configure Filesystem MCP           [X] │
+├─────────────────────────────────────────┤
+│                                         │
+│  ✅ Configuration saved!                │
+│                                         │
+│  Default tool is Claude.                │
+│  Weitere Einstellungen im Config tab.   │
+│                                         │
+│  [ConfigPreview - ONLY for Claude]      │
+│                                         │
+│                    [Copy]  [Done]       │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+**Specific changes for Step 2:**
+- Remove: Tool selection tabs completely
+- Remove: "Config generated!" header with CheckCircle2 icon
+- Remove: File path information box (the rounded box with "Paste this into")
+- Remove: "Back" button (only keep Done)
+- Keep: ConfigPreview component (but ONLY for Claude/default)
+- Keep: Copy button
+- Keep: Done button
+- Add text: "Default tool is Claude. Weitere Einstellungen im Config tab."
+
+### 3. State Management
+- Remove `selectedTool` state from dialog (we always use 'claude')
+- Remove `handleToolChange` function
+- Keep `defaultTool = 'claude'` hardcoded for the preview
+- Simplify TOOL_OPTIONS to just have Claude info for the location text if needed
+
+### 4. API Calls
+- The dialog still calls `/api/installations` to save
+- Then calls `/api/config?tool=claude&serverId=xxx` to get preview
+- No need to support tool switching in preview
+
+## Files to Modify
+
+### 1. `/components/registry/InstallActions.tsx`
+Change button label from "Add to {toolLabel}" to "Configure Server"
+Remove TOOL_LABELS mapping if not needed, or keep for future use
+
+### 2. `/components/registry/InstallConfigDialog.tsx`
+- Remove tool selection tabs from header
+- Simplify success step (step === 'preview'):
+  - Remove CheckCircle2 success header
+  - Remove file path info box
+  - Remove "Back" button
+  - Add simple text: "Default tool is Claude. Weitere Einstellungen im Config tab."
+  - Keep ConfigPreview with tool="claude" hardcoded
+  - Keep Copy and Done buttons
+- Remove handleToolChange function
+- Remove selectedTool state (always use 'claude')
+
+## Acceptance Criteria
+- [ ] Button on registry says "Configure Server" (not "Add to Claude Desktop")
+- [ ] Dialog has NO tool tabs in header
+- [ ] Step 1 shows config form with "Save Configuration" button
+- [ ] Step 2 shows minimal success view:
+  - Text: "Default tool is Claude. Weitere Einstellungen im Config tab."
+  - ConfigPreview for Claude only
+  - Copy button
+  - Done button (no Back button)
+- [ ] No tool switching in dialog
+- [ ] All tests still pass
+- [ ] TypeScript compiles without errors
+
+## Test Commands
+npm run type-check
+npm run test:ci
+npm run format
