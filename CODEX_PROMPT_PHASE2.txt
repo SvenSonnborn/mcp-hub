@@ -1,0 +1,126 @@
+# Task: Hybrid MCP Support - Phase 2: UI Components
+
+## Goal
+Update UI to show different buttons for remote vs local servers.
+
+## Changes Required
+
+### 1. Create new component `components/registry/AddToConfigActions.tsx`
+Create a new component similar to InstallActions but for remote servers:
+
+```tsx
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Loader2, Plus } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+
+type AddToConfigActionsProps = {
+  serverId: string
+  serverName: string
+  remoteUrl: string
+  className?: string
+  size?: 'default' | 'sm' | 'lg' | 'icon'
+}
+
+export function AddToConfigActions({
+  serverId,
+  serverName,
+  remoteUrl,
+  className,
+  size,
+}: AddToConfigActionsProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleAdd = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/config/remote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serverId, remoteUrl }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(payload?.error ?? 'Unable to add server')
+      }
+      toast.success(`${serverName} added to your MCP config`)
+      router.refresh()
+    } catch (error) {
+      toast.error('Failed to add server', {
+        description: error instanceof Error ? error.message : 'Please try again.',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <Button size={size} className={className} onClick={handleAdd} disabled={isLoading}>
+      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+      {isLoading ? 'Adding...' : 'Add to Config'}
+    </Button>
+  )
+}
+```
+
+### 2. Update `app/components/server-grid.tsx`
+Modify the `ServerCard` component to show different buttons based on server type:
+
+- Add import: `import { AddToConfigActions } from '@/components/registry/AddToConfigActions'`
+
+- Add tag colors for 'remote' and 'local':
+```typescript
+const TAG_COLORS: Record<ServerTag | string, string> = {
+  // ... existing colors ...
+  remote: 'bg-cyan-500/15 text-cyan-200 border-cyan-500/40',
+  local: 'bg-slate-500/15 text-slate-200 border-slate-500/30',
+}
+```
+
+- Update the button section (around line 66-73) to conditionally render:
+```tsx
+<div className="space-y-2">
+  {/* Row 1: GitHub + Details (both secondary) */}
+  <div className="flex gap-2">
+    <Button variant="secondary" size="sm" className="flex-1" asChild>
+      <a href={server.githubUrl} target="_blank" rel="noopener noreferrer">
+        GitHub
+      </a>
+    </Button>
+    <Button variant="secondary" size="sm" className="flex-1" asChild>
+      <Link href={`/servers/${server.id}`}>View Details</Link>
+    </Button>
+  </div>
+  
+  {/* Row 2: Primary action based on type */}
+  {server.type === 'remote' ? (
+    <AddToConfigActions
+      serverId={server.id}
+      serverName={server.name}
+      remoteUrl={server.remoteUrl || ''}
+      size="sm"
+      className="w-full"
+    />
+  ) : (
+    <InstallActions serverId={server.id} size="sm" className="w-full" />
+  )}
+</div>
+```
+
+### 3. Update `components/registry/InstallActions.tsx`
+Ensure the size prop is properly handled (should already be done from previous PR, just verify):
+- Props should include: `size?: 'default' | 'sm' | 'lg' | 'icon'`
+- Button should use: `size={size}`
+
+## Verification
+After changes, run:
+```bash
+npm run type-check
+npm run test:ci
+```
+
+Both should pass.

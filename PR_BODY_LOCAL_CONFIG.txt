@@ -1,0 +1,113 @@
+## Summary
+Makes all MCP servers (both remote and local) fully functional by adding configuration support during installation and fixing the config generator to build proper command-line arguments.
+
+## Problem
+Local servers were installed but didn't work because:
+1. No way to configure required arguments (paths, tokens, connection strings)
+2. Config generator didn't combine npmPackage with configured args
+3. Generated configs had empty args: `npx -y @modelcontextprotocol/server-filesystem` (no path!)
+
+## Solution
+
+### 1. Added configSchema to all local servers (`data/servers.json`)
+Each server now defines its configuration requirements:
+- **filesystem**: `paths` (array of allowed directories)
+- **github**: `token` (GitHub Personal Access Token)
+- **postgres**: `connectionString` (PostgreSQL connection string)
+- **sqlite**: `dbPath` (Path to SQLite database file)
+- **brave-search**: `apiKey` (Brave Search API Key)
+- **puppeteer**: `headless` (boolean, run in headless mode)
+- **fetch**: `maxResponseSize` (number, max response size in bytes)
+- **git**: `repositoryPath` (Path to Git repository)
+
+### 2. Created InstallConfigDialog component
+- Opens when installing a server with configSchema
+- Dynamically generates form fields based on schema
+- Supports: string, number, boolean, and array inputs
+- Validates required fields before submission
+
+### 3. Updated InstallActions to support configuration
+- Checks if server has configSchema
+- Opens dialog if configuration is needed
+- Passes config to API during installation
+
+### 4. Fixed config generator (`lib/config-generator.ts`)
+**Before:**
+```json
+{
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem"],
+  "env": {}
+}
+```
+
+**After:**
+```json
+{
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/sven/Documents"],
+  "env": {}
+}
+```
+
+The generator now:
+- Extracts npmPackage from installUrl
+- Converts config values to command-line args (paths, dbPath, connectionString, repositoryPath)
+- Puts tokens/API keys in env (GITHUB_TOKEN, BRAVE_API_KEY)
+- Handles both local (command/args) and remote (url) servers
+
+## Example Config Outputs
+
+**filesystem with paths configured:**
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/sven/Documents"],
+      "env": {}
+    }
+  }
+}
+```
+
+**github with token configured:**
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "ghp_xxx" }
+    }
+  }
+}
+```
+
+**supabase (remote):**
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp"
+    }
+  }
+}
+```
+
+## Testing
+- ✅ TypeScript type-check passes
+- ✅ All 35 tests passing
+- ✅ Code formatted with Prettier
+
+## Files Changed
+- `data/servers.json` - Added configSchema to all local servers
+- `lib/schemas.ts` - Added configSchema field to ServerSchema
+- `lib/config-generator.ts` - Fixed to build args from config values
+- `components/registry/InstallConfigDialog.tsx` - New component for config input
+- `components/registry/InstallActions.tsx` - Added dialog integration
+- `components/ui/dialog.tsx` - New shadcn/ui component
+- `components/ui/switch.tsx` - New shadcn/ui component
+- `app/api/installations/route.ts` - Accepts config during installation
+- `app/components/server-grid.tsx` - Passes server to InstallActions
+- `app/servers/[id]/page.tsx` - Passes server to InstallActions

@@ -1,0 +1,56 @@
+# Task: Hybrid MCP Support - Phase 1: Schema and Data
+
+## Goal
+Add support for both remote (HTTP) and local (STDIO) MCP servers.
+
+## Changes Required
+
+### 1. Update `lib/schemas.ts`
+Add to ServerSchema:
+- `type`: z.enum(['local', 'remote']) - required field
+- `remoteUrl`: z.string().url().optional() - for remote servers
+
+Add to ServerTagSchema:
+- 'remote'
+- 'local'
+
+### 2. Update `data/servers.json`
+Add type field to all 8 existing servers:
+- filesystem: "type": "local"
+- github: "type": "local"
+- postgres: "type": "local"
+- sqlite: "type": "local"
+- brave-search: "type": "local"
+- puppeteer: "type": "local"
+- fetch: "type": "local"
+- git: "type": "local"
+
+Add new remote server (Supabase):
+```json
+{
+  "id": "supabase",
+  "name": "Supabase MCP",
+  "description": "Connect to Supabase databases with comprehensive database operations and management capabilities.",
+  "author": "supabase",
+  "authorUrl": "https://supabase.com",
+  "tags": ["database", "remote"],
+  "githubUrl": "https://github.com/supabase/supabase",
+  "remoteUrl": "https://mcp.supabase.com/mcp",
+  "type": "remote",
+  "downloads": "100k+",
+  "version": "1.0.0",
+  "license": "MIT",
+  "tools": [
+    { "name": "query", "description": "Execute SQL queries" },
+    { "name": "get_tables", "description": "List all tables" }
+  ]
+}
+```
+
+## Verification
+After changes, run:
+```bash
+npm run type-check
+```
+
+Should pass without errors.

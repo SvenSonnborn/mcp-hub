@@ -1,0 +1,168 @@
+# Task: Hybrid MCP Support - Phase 3: API and Config Generator
+
+## Goal
+Create API endpoint for remote servers and update config generator to handle both types.
+
+## Changes Required
+
+### 1. Create new API endpoint `app/api/config/remote/route.ts`
+Create a POST endpoint that adds remote servers directly to user's config:
+
+```typescript
+import { NextResponse } from 'next/server'
+import { ServerStatus } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
+
+export const dynamic = 'force-dynamic'
+
+export async function POST(request: Request) {
+  const body = await request.json().catch(() => ({}))
+  const serverId = typeof body?.serverId === 'string' ? body.serverId : null
+  const remoteUrl = typeof body?.remoteUrl === 'string' ? body.remoteUrl : null
+
+  if (!serverId || !remoteUrl) {
+    return NextResponse.json(
+      { error: 'Missing serverId or remoteUrl' },
+      { status: 400 }
+    )
+  }
+
+  // Find server by ID or name
+  const server = await prisma.mCPServer.findFirst({
+    where: {
+      OR: [{ id: serverId }, { name: serverId }],
+    },
+    select: { id: true, name: true },
+  })
+
+  if (!server) {
+    return NextResponse.json({ error: 'Server not found' }, { status: 404 })
+  }
+
+  // Check if already exists
+  const existing = await prisma.mCPInstallation.findFirst({
+    where: { serverId: server.id },
+  })
+
+  if (existing) {
+    return NextResponse.json({
+      alreadyAdded: true,
+      installation: existing,
+    })
+  }
+
+  // Create installation for remote server (no lifecycle simulation needed)
+  const created = await prisma.mCPInstallation.create({
+    data: {
+      serverId: server.id,
+      status: ServerStatus.RUNNING, // Remote servers are immediately running
+      config: { url: remoteUrl, type: 'remote' },
+    },
+    include: {
+      server: {
+        select: { id: true, name: true, version: true },
+      },
+    },
+  })
+
+  return NextResponse.json({
+    alreadyAdded: false,
+    installation: created,
+  })
+}
+```
+
+### 2. Update `lib/config-generator.ts`
+Modify the config generator to handle both remote and local servers:
+
+**Update `toServerEntry` function:**
+```typescript
+const toServerEntry = (installation: InstallationWithServer): ServerEntry => {
+  const config = (installation.config ?? {}) as Record<string, unknown>
+  
+  // Handle remote servers (HTTP-based)
+  if (config.type === 'remote' && config.url) {
+    return {
+      name: toSafeName(installation.server.name),
+      command: '',
+      args: [],
+      env: {},
+      transport: 'http',
+      url: config.url as string,
+    }
+  }
+  
+  // Handle local servers (STDIO-based)
+  const command = typeof config.command === 'string' ? config.command : 'node'
+  const args = Array.isArray(config.args)
+    ? config.args.filter((arg) => typeof arg === 'string')
+    : []
+  const env: Record<string, string> =
+    config.env && typeof config.env === 'object' && !Array.isArray(config.env)
+      ? Object.fromEntries(
+          Object.entries(config.env as Record<string, unknown>).filter(
+            ([, value]) => typeof value === 'string'
+          ) as [string, string][]
+        )
+      : {}
+
+  return {
+    name: toSafeName(installation.server.name),
+    command,
+    args,
+    env,
+    transport: 'stdio',
+    url: installation.server.installUrl,
+  }
+}
+```
+
+**Update `generateConfig` function:**
+For remote servers, output minimal config with just URL:
+```typescript
+// Inside generateConfig, for each tool:
+// For remote servers, output { url: ... }
+// For local servers, output { command, args, env }
+```
+
+Current logic should handle this automatically since toServerEntry now returns different structures.
+
+### 3. Update Prisma schema `prisma/schema.prisma`
+Add fields to MCPServer model to support remote servers:
+
+```prisma
+model MCPServer {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  description   String
+  publisher     String
+  githubUrl     String
+  installUrl    String
+  version       String
+  category      Category
+  tags          String[]
+  configSchema  Json?    @default("{}")
+  isOfficial    Boolean  @default(false)
+  isVerified    Boolean  @default(false)
+  downloadCount Int      @default(0)
+  rating        Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // NEW FIELDS
+  type      String  @default("local") // "local" | "remote"
+  remoteUrl String? // For remote servers
+
+  // Relations
+  installations MCPInstallation[]
+}
+```
+
+## Verification
+After changes, run:
+```bash
+npm run type-check
+npm run test:ci
+```
+
+Both should pass. Note: Prisma schema changes require `npx prisma generate` but tests use mocks so should still pass.

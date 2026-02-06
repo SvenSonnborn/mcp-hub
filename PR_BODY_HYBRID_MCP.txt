@@ -1,0 +1,65 @@
+## Summary
+Implements Hybrid MCP Support - both remote (HTTP-based) and local (STDIO-based) MCP servers can now be managed through the MCP Hub.
+
+## Changes
+
+### Schema & Data
+- Added `type` field ('local' | 'remote') to Server schema
+- Added `remoteUrl` field for remote servers
+- Added 'remote' and 'local' tags to ServerTagSchema
+- Categorized all 8 existing servers as 'local' type
+- Added new Supabase remote server
+
+### UI Components
+- Created `AddToConfigActions` component for remote servers
+- Updated `ServerCard` to show different buttons based on server type:
+  - Remote: "Add to Config" button (primary CTA)
+  - Local: "Install Server" button (primary CTA)
+- Added tag colors for 'remote' and 'local' tags
+
+### API & Config Generation
+- Created new API endpoint `POST /api/config/remote` for adding remote servers
+- Updated config generator to output different formats:
+  - Remote: `{ url: "https://..." }`
+  - Local: `{ command: "npx", args: [...], env: {} }`
+- Updated Prisma schema with `type` and `remoteUrl` fields
+
+### Example Config Output
+**Remote (Supabase):**
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp"
+    }
+  }
+}
+```
+
+**Local (Filesystem):**
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path"],
+      "env": {}
+    }
+  }
+}
+```
+
+## Testing
+- ✅ All 35 tests passing
+- ✅ TypeScript type-check passes
+- ✅ Code formatted with Prettier
+
+## Checklist
+- [x] Schema updated with type and remoteUrl fields
+- [x] Servers categorized correctly in data/servers.json
+- [x] ServerCard shows different buttons for remote vs local
+- [x] New AddToConfigActions component created
+- [x] Config generator outputs correct format for both types
+- [x] New API endpoint for remote servers created
+- [x] All existing tests pass
+- [x] TypeScript compiles without errors

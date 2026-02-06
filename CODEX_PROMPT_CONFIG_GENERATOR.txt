@@ -1,0 +1,136 @@
+# CRITICAL FIX: Update lib/config-generator.ts to Build Working Local Server Configs
+
+## Current Problem
+The config generator does NOT build proper args for local servers. It just reads config.args from the database, but the actual config contains paths/dbPath/connectionString/etc. that need to be converted to command-line arguments.
+
+## Required Changes
+
+### Update `toServerEntry` function in `lib/config-generator.ts`
+
+Replace the current local server handling with this logic that:
+1. Extracts npmPackage from installUrl
+2. Converts config values to command-line args
+3. Puts tokens/keys in env instead of args
+
+```typescript
+const toServerEntry = (installation: InstallationWithServer): ServerEntry => {
+  const config = (installation.config ?? {}) as Record<string, unknown>
+
+  // Remote servers - return URL-based config
+  if (config.type === 'remote' && config.url) {
+    return {
+      name: toSafeName(installation.server.name),
+      command: '',
+      args: [],
+      env: {},
+      transport: 'http',
+      url: config.url as string,
+    }
+  }
+
+  // Local servers - BUILD args from npmPackage + config values
+  const installUrl = installation.server.installUrl || ''
+  const npmPackage = installUrl.replace(/^npm:/, '') || '@modelcontextprotocol/server-filesystem'
+  
+  const configArgs: string[] = []
+  const env: Record<string, string> = {}
+
+  // filesystem server: paths -> args
+  if (config.paths && Array.isArray(config.paths)) {
+    configArgs.push(...config.paths.filter((p): p is string => typeof p === 'string'))
+  }
+  
+  // sqlite server: dbPath -> arg
+  if (config.dbPath && typeof config.dbPath === 'string') {
+    configArgs.push(config.dbPath)
+  }
+  
+  // postgres server: connectionString -> arg  
+  if (config.connectionString && typeof config.connectionString === 'string') {
+    configArgs.push(config.connectionString)
+  }
+  
+  // git server: repositoryPath -> arg
+  if (config.repositoryPath && typeof config.repositoryPath === 'string') {
+    configArgs.push(config.repositoryPath)
+  }
+
+  // github server: token -> env
+  if (config.token && typeof config.token === 'string') {
+    env.GITHUB_TOKEN = config.token
+  }
+  
+  // brave-search server: apiKey -> env
+  if (config.apiKey && typeof config.apiKey === 'string') {
+    env.BRAVE_API_KEY = config.apiKey
+  }
+  
+  // postgres can also have token in env for auth
+  if (config.token && typeof config.token === 'string' && installation.server.name.toLowerCase().includes('postgres')) {
+    env.DATABASE_URL = config.connectionString as string || ''
+  }
+
+  return {
+    name: toSafeName(installation.server.name),
+    command: 'npx',
+    args: ['-y', npmPackage, ...configArgs],
+    env,
+    transport: 'stdio',
+    url: installUrl,
+  }
+}
+```
+
+## Example Outputs After Fix
+
+**filesystem with config { paths: ["/Users/sven/Documents"] }:**
+```json
+{
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/sven/Documents"],
+  "env": {}
+}
+```
+
+**github with config { token: "ghp_xxx" }:**
+```json
+{
+  "command": "npx", 
+  "args": ["-y", "@modelcontextprotocol/server-github"],
+  "env": { "GITHUB_TOKEN": "ghp_xxx" }
+}
+```
+
+**sqlite with config { dbPath: "./my.db" }:**
+```json
+{
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-sqlite", "./my.db"],
+  "env": {}
+}
+```
+
+**supabase (remote) with config { url: "https://..." }:**
+```json
+{
+  "url": "https://mcp.supabase.com/mcp"
+}
+```
+
+## Verification
+
+After changes, run:
+```bash
+npm run type-check
+npm run test:ci
+```
+
+Both must pass.
+
+## Success Criteria
+
+- [ ] Config generator builds `npx -y <package> <args>` for local servers
+- [ ] Config values (paths, dbPath, etc.) are converted to command-line args
+- [ ] Tokens/API keys are put in env, not args
+- [ ] Remote servers still work with just URL
+- [ ] All tests pass

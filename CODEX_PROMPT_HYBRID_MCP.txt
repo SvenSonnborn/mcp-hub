@@ -1,0 +1,216 @@
+# Task: Implement Hybrid MCP Support (Remote + Local Servers)
+
+## Overview
+Currently, all servers are treated as "local" requiring installation. We need to support BOTH:
+1. **Remote servers** (HTTP-based, like Supabase): Just add URL to config, no installation
+2. **Local servers** (STDIO-based, like Filesystem): Need installation + command/args
+
+## Files to Modify
+
+### 1. `lib/schemas.ts` - Add Server Type
+Add new fields to ServerSchema:
+- `type`: enum 'local' | 'remote' (required)
+- `remoteUrl`: string (optional, for remote servers)
+- Keep `npmPackage` for local servers
+
+Update ServerTagSchema to include 'remote' and 'local' tags.
+
+### 2. `data/servers.json` - Categorize All Servers
+Update all 8 servers with proper `type` field:
+
+**Remote Servers** (type: "remote"):
+- Supabase (NEW - add this server): 
+  - id: "supabase", name: "Supabase MCP", remoteUrl: "https://mcp.supabase.com/mcp"
+  - tags: ["database", "remote"]
+  - NO npmPackage
+- Any other SaaS MCPs you can think of
+
+**Local Servers** (type: "local"):
+- filesystem: type: "local", npmPackage: "@modelcontextprotocol/server-filesystem"
+- github: type: "local", npmPackage: "@modelcontextprotocol/server-github"
+- postgres: type: "local", npmPackage: "@modelcontextprotocol/server-postgres"
+- sqlite: type: "local", npmPackage: "@modelcontextprotocol/server-sqlite"
+- brave-search: type: "local", npmPackage: "@modelcontextprotocol/server-brave-search"
+- puppeteer: type: "local", npmPackage: "@modelcontextprotocol/server-puppeteer"
+- fetch: type: "local", npmPackage: "@modelcontextprotocol/server-fetch"
+- git: type: "local", npmPackage: "@modelcontextprotocol/server-git"
+
+### 3. `app/components/server-grid.tsx` - Different Buttons per Type
+Modify `ServerCard` to show different buttons based on server.type:
+
+**For Remote Servers:**
+- Row 1: "GitHub" (secondary) + "View Details" (secondary) - 50/50
+- Row 2: "Add to Config" (primary, full width) - NEW COMPONENT
+
+**For Local Servers:**
+- Row 1: "GitHub" (secondary) + "View Details" (secondary) - 50/50  
+- Row 2: "Install Server" (primary, full width) - Existing InstallActions
+
+Create NEW component `AddToConfigActions` (similar to InstallActions but for remote):
+- Props: serverId, serverName, remoteUrl
+- On click: POST to `/api/config/remote` 
+- Success: "Added to your MCP config"
+- No installation process needed
+
+### 4. `components/registry/InstallActions.tsx` - Add size prop (already done, verify)
+Ensure it accepts optional `size` prop for consistent button sizing.
+
+### 5. `lib/config-generator.ts` - Generate Different Output per Type
+Modify `toServerEntry` and `generateConfig`:
+
+**For Remote Servers:**
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp"
+    }
+  }
+}
+```
+
+**For Local Servers (NPM packages):**
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"],
+      "env": {}
+    }
+  }
+}
+```
+
+The generator should:
+1. Check if server type is 'remote' → output { url: remoteUrl }
+2. Check if server type is 'local' → output { command: 'npx', args: ['-y', npmPackage, ...configArgs] }
+
+### 6. `app/api/config/remote/route.ts` - NEW API Endpoint
+Create POST endpoint for adding remote servers to user's config:
+- Body: { serverId, remoteUrl }
+- Save to MCPInstallation with status: 'RUNNING' (no install needed)
+- Config: { url: remoteUrl, type: 'remote' }
+- Return: { success: true, installation }
+
+### 7. `prisma/schema.prisma` - Update Schema
+Add to MCPServer model:
+- `type` String @default("local") // "local" | "remote"
+- `remoteUrl` String? // For remote servers
+
+Modify MCPInstallation:
+- For remote servers: status can be 'RUNNING' immediately
+- Config should store { url, type } for remote
+
+### 8. Update Tests
+Files to check/update:
+- `__tests__/api/installations.test.ts` - Add test for remote server flow
+- `__tests__/lib/validators/servers.test.ts` - Add validation tests for new schema
+- `__tests__/components/SubmitServerForm.test.tsx` - If affected
+
+## Implementation Details
+
+### ServerCard Logic Flow:
+```tsx
+function ServerCard({ server }) {
+  return (
+    <Card>
+      {/* ... header content ... */}
+      
+      {server.type === 'remote' ? (
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" className="flex-1">GitHub</Button>
+            <Button variant="secondary" size="sm" className="flex-1">View Details</Button>
+          </div>
+          <AddToConfigActions 
+            serverId={server.id} 
+            serverName={server.name}
+            remoteUrl={server.remoteUrl}
+            size="sm" 
+            className="w-full" 
+          />
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" className="flex-1">GitHub</Button>
+            <Button variant="secondary" size="sm" className="flex-1">View Details</Button>
+          </div>
+          <InstallActions serverId={server.id} size="sm" className="w-full" />
+        </div>
+      )}
+    </Card>
+  )
+}
+```
+
+### Config Generator Logic:
+```typescript
+function generateServerConfig(server, installation) {
+  if (server.type === 'remote') {
+    return { url: server.remoteUrl || installation.config?.url }
+  }
+  
+  if (server.type === 'local') {
+    const args = installation.config?.args || []
+    return {
+      command: 'npx',
+      args: ['-y', server.npmPackage, ...args],
+      env: installation.config?.env || {}
+    }
+  }
+}
+```
+
+## Visual Design Requirements
+- Keep existing glassmorphism card styles
+- Primary buttons use default Button style (cyan/emerald theme)
+- Secondary buttons use variant="secondary"
+- All buttons size="sm" for consistency
+- Hover effects preserved
+
+## Testing Requirements
+After implementation, run ALL checks:
+```bash
+npm run test:ci        # All 35 tests must pass
+npm run type-check     # No TypeScript errors
+npm run format         # Code formatted
+npm run lint           # No lint errors
+```
+
+## Expected Behavior
+1. **Remote Server Card** (Supabase):
+   - Shows "Add to Config" button (primary)
+   - Click → Instant add, no installation
+   - Config shows: `{ url: "https://mcp.supabase.com/mcp" }`
+
+2. **Local Server Card** (Filesystem):
+   - Shows "Install Server" button (primary)
+   - Click → Installation process starts
+   - Config shows: `{ command: "npx", args: [...] }`
+
+3. **Config Manager**:
+   - Shows both remote and local servers
+   - Remote: Just the URL
+   - Local: Command + Args
+   - Proper format for each tool (Claude, Cursor, Windsurf)
+
+## Important Notes
+- Preserve all existing styling (Tailwind classes)
+- Keep existing animations and hover effects
+- Don't break existing local server functionality
+- Add at least one real remote server (Supabase) to data
+- Ensure backward compatibility (default type="local" if not specified)
+- The "Add to Config" button should work similar to InstallActions but simpler (no loading state needed, just API call)
+
+## Success Criteria
+- [ ] Schema updated with type and remoteUrl fields
+- [ ] Servers categorized correctly in data/servers.json
+- [ ] ServerCard shows different buttons for remote vs local
+- [ ] New AddToConfigActions component created and working
+- [ ] Config generator outputs correct format for both types
+- [ ] New API endpoint for remote servers created
+- [ ] All existing tests pass (35/35)
+- [ ] TypeScript compiles without errors
+- [ ] Code formatted with Prettier

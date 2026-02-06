@@ -1,0 +1,384 @@
+# Task: Fix Local MCP Server Configuration - Make All Servers Fully Functional
+
+## Current Problem
+Local servers are installed but don't work because:
+1. No way to configure required arguments (paths, tokens, connection strings)
+2. Config generator doesn't combine npmPackage with configured args
+3. Missing config schema in server definitions
+
+## Goal
+Enable full configuration for all server types (remote AND local) so generated configs work immediately.
+
+## Files to Analyze First (READ these before making changes)
+1. `data/servers.json` - Current server definitions (missing configSchema)
+2. `prisma/seed.ts` - Contains configSchema examples for each server type
+3. `components/registry/InstallActions.tsx` - Current install button (no config dialog)
+4. `app/api/installations/route.ts` - POST endpoint (doesn't accept config)
+5. `lib/config-generator.ts` - Must combine npmPackage + args for local servers
+
+## Required Changes
+
+### 1. Update `data/servers.json` - Add configSchema to ALL local servers
+
+Add `configSchema` field to each local server following JSON Schema format:
+
+**filesystem:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "paths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Allowed directories",
+      "default": ["/Users/$USER/Documents"]
+    }
+  },
+  "required": ["paths"]
+}
+```
+
+**github:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "GitHub Personal Access Token"
+    }
+  },
+  "required": ["token"]
+}
+```
+
+**postgres:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "connectionString": {
+      "type": "string",
+      "description": "PostgreSQL connection string",
+      "default": "postgresql://localhost:5432/mydb"
+    }
+  },
+  "required": ["connectionString"]
+}
+```
+
+**sqlite:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "dbPath": {
+      "type": "string",
+      "description": "Path to SQLite database file",
+      "default": "./data.db"
+    }
+  },
+  "required": ["dbPath"]
+}
+```
+
+**brave-search:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "apiKey": {
+      "type": "string",
+      "description": "Brave Search API Key"
+    }
+  },
+  "required": ["apiKey"]
+}
+```
+
+**puppeteer:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "headless": {
+      "type": "boolean",
+      "description": "Run in headless mode",
+      "default": true
+    }
+  }
+}
+```
+
+**fetch:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "maxResponseSize": {
+      "type": "number",
+      "description": "Max response size in bytes",
+      "default": 10000
+    }
+  }
+}
+```
+
+**git:**
+```json
+"configSchema": {
+  "type": "object",
+  "properties": {
+    "repositoryPath": {
+      "type": "string",
+      "description": "Path to Git repository",
+      "default": "."
+    }
+  },
+  "required": ["repositoryPath"]
+}
+```
+
+**supabase** (remote - no configSchema needed, uses remoteUrl)
+
+Also update `lib/schemas.ts` to include configSchema in ServerSchema:
+```typescript
+configSchema: z.object({
+  type: z.literal('object'),
+  properties: z.record(z.any()).optional(),
+  required: z.array(z.string()).optional(),
+}).optional(),
+```
+
+### 2. Create NEW component `components/registry/InstallConfigDialog.tsx`
+
+Create a modal dialog that:
+- Opens when clicking "Install" on a local server
+- Dynamically generates form fields based on server's configSchema
+- Supports: string inputs, number inputs, boolean toggles, array inputs
+- Shows field descriptions as help text
+- Validates required fields
+- Returns config object on submit
+
+```tsx
+'use client'
+
+import { useState } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { toast } from 'sonner'
+import type { Server } from '@/lib/schemas'
+
+interface InstallConfigDialogProps {
+  server: Server
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: (config: Record<string, unknown>) => void
+}
+
+export function InstallConfigDialog({ server, isOpen, onClose, onConfirm }: InstallConfigDialogProps) {
+  // Generate form fields from configSchema
+  // Handle different types: string, number, boolean, array
+  // Validate required fields before submit
+}
+```
+
+### 3. Update `components/registry/InstallActions.tsx`
+
+Modify to:
+- Check if server has configSchema
+- If yes: open InstallConfigDialog first
+- If no: proceed with direct install (backward compatible)
+- Pass config to API when installing
+
+```tsx
+type InstallActionsProps = {
+  serverId: string
+  server?: Server // Add server prop for configSchema access
+  className?: string
+  size?: 'default' | 'sm' | 'lg' | 'icon'
+  onInstalled?: (installationId: string) => void
+}
+
+// In handleInstall:
+// 1. If server has configSchema, open dialog
+// 2. After dialog confirmation, call API with config
+// 3. API body: { serverId, config: { paths: [...] } }
+```
+
+### 4. Update `app/api/installations/route.ts` - POST handler
+
+Modify POST to accept and store config:
+
+```typescript
+export async function POST(request: Request) {
+  const body = await request.json().catch(() => ({}))
+  const serverId = typeof body?.serverId === 'string' ? body.serverId : null
+  const config = body?.config as Record<string, unknown> | undefined
+
+  // ... existing validation ...
+
+  const created = await prisma.mCPInstallation.create({
+    data: {
+      serverId: server.id,
+      status: ServerStatus.PENDING,
+      config: config ? { ...config, type: 'local' } : { type: 'local' },
+    },
+    // ...
+  })
+  // ...
+}
+```
+
+### 5. CRITICAL: Update `lib/config-generator.ts` - Fix toServerEntry
+
+The config generator MUST combine npmPackage with configured args:
+
+```typescript
+const toServerEntry = (installation: InstallationWithServer): ServerEntry => {
+  const config = (installation.config ?? {}) as Record<string, unknown>
+
+  // Remote servers
+  if (config.type === 'remote' && config.url) {
+    return {
+      name: toSafeName(installation.server.name),
+      command: '',
+      args: [],
+      env: {},
+      transport: 'http',
+      url: config.url as string,
+    }
+  }
+
+  // Local servers - BUILD args from npmPackage + config
+  const npmPackage = installation.server.installUrl?.replace('npm:', '') || ''
+  
+  // Extract config values for args
+  const configArgs: string[] = []
+  const env: Record<string, string> = {}
+  
+  // Handle different server types based on their config
+  if (config.paths && Array.isArray(config.paths)) {
+    // filesystem server
+    configArgs.push(...config.paths)
+  }
+  if (config.dbPath && typeof config.dbPath === 'string') {
+    // sqlite server
+    configArgs.push(config.dbPath)
+  }
+  if (config.connectionString && typeof config.connectionString === 'string') {
+    // postgres server
+    configArgs.push(config.connectionString)
+  }
+  if (config.repositoryPath && typeof config.repositoryPath === 'string') {
+    // git server
+    configArgs.push(config.repositoryPath)
+  }
+  // ... handle other config values
+  
+  // Tokens/API keys go to env, not args
+  if (config.token && typeof config.token === 'string') {
+    env.GITHUB_TOKEN = config.token
+  }
+  if (config.apiKey && typeof config.apiKey === 'string') {
+    env.BRAVE_API_KEY = config.apiKey
+  }
+
+  return {
+    name: toSafeName(installation.server.name),
+    command: 'npx',
+    args: ['-y', npmPackage, ...configArgs],
+    env,
+    transport: 'stdio',
+    url: installation.server.installUrl,
+  }
+}
+```
+
+### 6. Update `app/components/server-grid.tsx`
+
+Pass server object to InstallActions:
+```tsx
+<InstallActions 
+  serverId={server.id} 
+  server={server}  // Add this prop
+  size="sm" 
+  className="w-full" 
+/>
+```
+
+### 7. Install required shadcn/ui components if not present
+
+Check if these exist in `components/ui/`:
+- `dialog.tsx`
+- `switch.tsx`
+
+If not, create them or use alternatives from existing components.
+
+## Example Config Outputs After Fix
+
+**filesystem (with config paths: ["/Users/sven/Documents"]):
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/sven/Documents"],
+      "env": {}
+    }
+  }
+}
+```
+
+**github (with config token: "ghp_xxx"):
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "ghp_xxx" }
+    }
+  }
+}
+```
+
+**supabase (remote):
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp"
+    }
+  }
+}
+```
+
+## Testing Requirements
+
+After all changes, run:
+```bash
+npm run test:ci        # All 35 tests must pass
+npm run type-check     # No TypeScript errors
+npm run format         # Code formatted
+```
+
+## Success Criteria
+
+- [ ] All local servers have configSchema in data/servers.json
+- [ ] InstallConfigDialog component created with dynamic form generation
+- [ ] InstallActions opens dialog for servers with configSchema
+- [ ] API accepts and stores config during installation
+- [ ] Config generator outputs working configs with npmPackage + args
+- [ ] Generated configs work in Cursor/Claude immediately
+- [ ] All tests pass
+
+## Notes
+
+- Remote servers (supabase) should work without dialog (already functional)
+- Local servers without configSchema should still work (backward compatibility)
+- The dialog should be user-friendly with clear descriptions
+- Handle $USER or ~ in paths (expand to actual home directory)

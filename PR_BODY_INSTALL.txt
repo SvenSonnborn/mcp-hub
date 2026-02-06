@@ -1,0 +1,27 @@
+## Summary
+Adds direct install functionality to the registry grid view. Users can now install MCP servers directly from the registry overview without navigating to the detail page.
+
+## Changes
+- Added `InstallActions` component to `ServerCard` in registry grid
+- Layout: GitHub + View Details (50/50 split) on row 1
+- Install Server button (full width, primary CTA) on row 2
+- Extended `InstallActions` component with optional `size` prop for consistency
+
+## Visual
+```
+┌─────────────────────────────────┐
+│  GitHub      │  View Details    │  ← Row 1: secondary buttons
+├─────────────────────────────────┤
+│      Install Server             │  ← Row 2: primary CTA (full width)
+└─────────────────────────────────┘
+```
+
+## Checklist
+- [x] TypeScript type-check passes
+- [x] All 35 tests passing
+- [x] Code formatted with Prettier
+- [x] Visual style preserved (glassmorphism, animations)
+- [x] Install button is now the primary CTA
+
+## Related
+Closes the UX gap where users had to navigate to detail page to install.

@@ -1,0 +1,153 @@
+# MCP Hub: One-Click Config Export (Option B)
+
+## Goal
+Replace the confusing "Install" flow with a clear One-Click Config Export. After a user configures a local MCP server, immediately show them the generated config with copy/download buttons and clear instructions on where to paste it.
+
+## Current Problem
+The current flow is confusing:
+1. User clicks "Install Server" on a server detail page
+2. Config dialog opens (InstallConfigDialog.tsx)
+3. User enters config (e.g., GitHub token, file paths)
+4. "Installation" is saved to database with simulated lifecycle (PENDING → INSTALLING → RUNNING)
+5. Nothing actually happens on the user's machine!
+6. User must navigate to Config Manager separately to see generated config
+
+This is misleading because "Install" suggests software is being installed, but we're just storing settings for later export.
+
+## Desired New Flow
+
+### For Local MCP Servers (type: "local"):
+```
+1. User clicks "Add to Claude" (or Cursor/Windsurf) on server detail page
+2. Config dialog opens for required settings (token, paths, etc.)
+3. After entering config and clicking "Generate Config":
+   - Dialog transforms to show generated MCP config JSON
+   - Tool selector tabs (Claude/Cursor/Windsurf) to switch format
+   - Copy button + Download button
+   - Clear instructions: "Paste this into ~/Library/Application Support/Claude/claude_desktop_config.json"
+   - "Done" button closes dialog and refreshes page
+4. Server is marked as "added" in the background (optional)
+```
+
+### For Remote MCP Servers (type: "remote"):
+Keep current flow but rename button to "Connect Remote Server" - these actually just need URL storage.
+
+## Files to Modify
+
+### 1. `/components/registry/InstallActions.tsx`
+- Rename button from "Install Server" to "Add to [Tool]" 
+- Default to "Claude Desktop" but support prop for tool selection
+- After successful config submission, show ConfigPreview inline or navigate to it
+
+### 2. `/components/registry/InstallConfigDialog.tsx`
+MAJOR REFACTOR:
+- Keep config input form (first step)
+- After submit, fetch generated config from API and show ConfigPreview
+- Add tabs to switch between tools (claude/cursor/windsurf)
+- Show file path hint per tool:
+  - Claude: `~/Library/Application Support/Claude/claude_desktop_config.json`
+  - Cursor: `~/.cursor/mcp.json`
+  - Windsurf: `~/.windsurf/mcp.json`
+- Keep Copy + Download buttons from ConfigPreview
+- "Back" button to edit config again
+- "Done" button closes and refreshes
+
+### 3. `/components/config/ConfigPreview.tsx`
+- Make filename dynamic based on tool (claude_desktop_config.json vs mcp.json)
+- Ensure it accepts a `tool` prop to show correct filename
+
+### 4. `/app/servers/[id]/page.tsx`
+- Update button labels:
+  - For local servers: "Add to Claude Desktop" (primary), "Add to Cursor" (secondary), etc.
+  - For remote servers: "Connect Remote Server"
+- After adding, show success state with "View Config" button
+
+### 5. `/app/api/config/route.ts`
+- Support generating config for a SINGLE server (not just all installations)
+- Add query param `?serverId=xxx` to generate config for specific server only
+- This allows preview before saving to database
+
+## API Requirements
+
+The dialog needs to:
+1. POST to `/api/installations` with config (creates installation)
+2. Then GET `/api/config?tool=claude&serverId=xxx` to get generated config for just that server
+3. Show ConfigPreview with the result
+
+## UI/UX Details
+
+### Tool Selector Tabs in Dialog:
+```
+┌─────────────────────────────────────────┐
+│  Add GitHub MCP to Claude Desktop   [X] │
+├─────────────────────────────────────────┤
+│  [Claude] [Cursor] [Windsurf] [Copy]   │
+├─────────────────────────────────────────┤
+│                                         │
+│  Step 1: Configure                      │
+│  GitHub Token: [****************]       │
+│                                         │
+│         [Generate Config →]             │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+After clicking "Generate Config":
+```
+┌─────────────────────────────────────────┐
+│  GitHub MCP Config for Claude      [X]  │
+├─────────────────────────────────────────┤
+│  [Claude] [Cursor] [Windsurf] [Copy]   │
+├─────────────────────────────────────────┤
+│                                         │
+│  ✅ Config generated!                   │
+│                                         │
+│  Paste this into:                       │
+│  ~/Library/Application Support/...      │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │ {                               │    │
+│  │   "mcpServers": {               │    │
+│  │     "github": {                 │    │
+│  │       "command": "npx",         │    │
+│  │       ...                       │    │
+│  │     }                           │    │
+│  │   }                             │    │
+│  │ }                               │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  [Copy] [Download]  [← Back] [Done]     │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+## Technical Notes
+
+- Use existing `ConfigPreview` component for the JSON display
+- Use existing `generateConfig` from `/lib/config-generator.ts`
+- Use existing API `/api/config` but extend for single-server queries
+- Keep the dark glassmorphism UI style (rounded-3xl, border-white/10, etc.)
+- Maintain TypeScript types
+- Don't break existing Config Manager page (it should still work for bulk export)
+
+## Acceptance Criteria
+
+1. [ ] Button on server page says "Add to [Tool]" not "Install Server"
+2. [ ] Dialog shows config form first, then generated config
+3. [ ] Can switch tools (Claude/Cursor/Windsurf) after generation
+4. [ ] Shows correct file path for selected tool
+5. [ ] Copy button works and shows success toast
+6. [ ] Download button saves correct filename per tool
+7. [ ] "Done" closes dialog and refreshes server page
+8. [ ] All existing tests still pass
+9. [ ] TypeScript compiles without errors
+10. [ ] UI matches existing glassmorphism design
+
+## Test Commands to Run After Changes
+
+```bash
+npm run type-check
+npm run test:ci
+npm run format
+npm run build
+```
