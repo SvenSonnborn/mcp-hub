@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Check, Copy, Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { ConfigPreview } from '@/components/config/ConfigPreview'
 import { toast } from 'sonner'
 import type { Server } from '@/lib/schemas'
 import type { ToolId } from '@/lib/config-generator'
@@ -81,7 +80,6 @@ export function InstallConfigDialog({
   onInstalled,
 }: InstallConfigDialogProps) {
   const router = useRouter()
-  const defaultTool: ToolId = 'claude'
   const schema = server.configSchema as Schema | undefined
   const properties = schema?.properties ?? {}
   const requiredFields = useMemo(() => new Set(schema?.required ?? []), [schema])
@@ -89,6 +87,7 @@ export function InstallConfigDialog({
   const [step, setStep] = useState<'form' | 'preview'>('form')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [configData, setConfigData] = useState<ConfigResponse | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     if (!isOpen) return
@@ -227,7 +226,7 @@ export function InstallConfigDialog({
         onInstalled?.(payload.installation.id)
       }
 
-      const generated = await fetchConfig(defaultTool)
+      const generated = await fetchConfig('claude')
       setConfigData(generated)
       setStep('preview')
       toast.success('Configuration saved')
@@ -241,6 +240,29 @@ export function InstallConfigDialog({
   }
 
   const hasFields = Object.keys(properties).length > 0
+  const handleDone = () => {
+    onClose()
+    router.refresh()
+  }
+
+  const handleCopyConfig = async () => {
+    if (!configData?.config) {
+      toast.error('No config available to copy')
+      return
+    }
+
+    try {
+      const serialized = JSON.stringify(configData.config, null, 2)
+      await navigator.clipboard.writeText(serialized)
+      setCopied(true)
+      toast.success('Config copied to clipboard')
+      setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
+      toast.error('Unable to copy config', {
+        description: error instanceof Error ? error.message : 'Please try again.',
+      })
+    }
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => (open ? null : onClose())}>
@@ -364,30 +386,28 @@ export function InstallConfigDialog({
           </>
         ) : (
           <>
-            <div className="mt-6 space-y-3 text-sm text-slate-200">
+            <div className="mt-6 space-y-4">
               <p className="font-semibold text-emerald-200">Configuration saved!</p>
-              <p>Default tool is Claude. Weitere Einstellungen im Config tab.</p>
-            </div>
+              <p className="text-sm text-slate-200">
+                Default tool is Claude.
+                <br />
+                Weitere Einstellungen im Config tab.
+              </p>
 
-            <div className="mt-6">
-              <ConfigPreview
-                config={configData?.config ?? {}}
-                isValid={configData?.valid ?? true}
-                title={`${server.name} config`}
-                tool={defaultTool}
-              />
-            </div>
-
-            <div className="mt-8 flex flex-wrap justify-end gap-3">
-              <Button
-                type="button"
-                onClick={() => {
-                  onClose()
-                  router.refresh()
-                }}
-              >
-                Done
-              </Button>
+              <div className="mt-8 flex justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCopyConfig}
+                  disabled={copied}
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? 'Copied!' : 'Copy Config'}
+                </Button>
+                <Button type="button" onClick={handleDone}>
+                  Done
+                </Button>
+              </div>
             </div>
           </>
         )}
